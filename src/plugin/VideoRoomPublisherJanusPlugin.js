@@ -1,12 +1,12 @@
-//const serviceContainer = require('../../service_container') // TODO: ?
+//const serviceContainer = require('../../service_container') //
 const JanusPlugin = require('../JanusPlugin')
 const VideoRoomListenerJanusPlugin = require('./VideoRoomListenerJanusPlugin')
-//const config = require('../../../config') // TODO: ?
+//const config = require('../../../config') //
 
-const clientTypes = ['operator', 'customer']
+// const clientTypes = ['operator', 'customer']
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
-  constructor (roomId, roomCodec, isMobile, clientType, mediaOptions, config, serviceContainer, filterDirectCandidates = false) {
+  constructor (roomId, roomCodec, isMobile, clientTypes, clientType, mediaOptions, config, serviceContainer, filterDirectCandidates = false) {
     if (!clientTypes.includes(clientType)) {
       throw new Error('unknown clientType', clientType)
     }
@@ -33,6 +33,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     this.config = config
     this.serviceContainer = serviceContainer
+    this.clientTypes = clientTypes
   }
 
   getAttachPayload () {
@@ -220,7 +221,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         // this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown publishers', this.janusRoomId, publishers)
         return false
       }
-      if (!clientTypes.includes(publisher.display)) {
+      if (!this.clientTypes.includes(publisher.display)) {
         // this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown publisher display name', publishers)
         return false
       }
