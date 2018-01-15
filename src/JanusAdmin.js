@@ -2,8 +2,8 @@ const Janus = require('./Janus')
 // const config = require('../../config') // TODO: make setter
 
 class JanusAdmin extends Janus {
-  constructor (config) {
-    super()
+  constructor (config, logger) {
+    super(config, logger)
     this.config = config //config.webrtc.admin
     this.protocol = 'janus-admin-protocol'
     this.sendCreate = false
