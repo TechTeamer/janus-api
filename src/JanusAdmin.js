@@ -1,5 +1,4 @@
 const Janus = require('./Janus')
-// const config = require('../../config') // TODO: make setter
 
 class JanusAdmin extends Janus {
   constructor (config, logger) {

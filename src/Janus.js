@@ -1,10 +1,6 @@
 const WebSocket = require('ws')
-// const config = require('../../config') // TODO: make setConfig method
-// const l = require('../logger') // TODO: make setLogger method
 const JanusPlugin = require('./JanusPlugin')
 const uuid = require('uuid/v4')
-
-// let logger = l.channels.janus // TODO: ?
 
 class Janus {
   constructor (config, logger) {
@@ -19,15 +15,10 @@ class Janus {
     this.config = config.webrtc.server
     this.protocol = 'janus-protocol'
     this.sendCreate = true
-
-    /*
-    setInterval(() => { console.log('PENDING JANUS TRANSACTION COUNT', Object.keys(this.transactions).length) }, 1000)
-    */
   }
 
-  // TODO
   setLogger (logger) {
-
+    this.logger = logger
   }
 
   connect () {
@@ -39,7 +30,7 @@ class Janus {
       this.ws = new WebSocket(this.config.url, this.protocol, this.config.options)
 
     this.ws.addEventListener('error', (err) => {
-      logger.error('Error connecting to the Janus WebSockets server...', err)
+      this.logger.error('Error connecting to the Janus WebSockets server...', err)
     this.isConnected = false
     reject(err)
   })
@@ -59,7 +50,7 @@ class Janus {
     this.transactions[transaction] = {
       resolve: (json) => {
       if (json.janus !== 'success') {
-      logger.error('Cannot connect to Janus', json)
+      this.logger.error('Cannot connect to Janus', json)
       reject(json)
       return
     }
@@ -68,7 +59,7 @@ class Janus {
     this.isConnected = true
     this.keepAlive(true)
 
-    logger.debug('Janus connected, sessionId: ', this.sessionId)
+    this.logger.debug('Janus connected, sessionId: ', this.sessionId)
 
     resolve(this)
   },
@@ -98,7 +89,7 @@ class Janus {
 
     return this.transaction('attach', request, 'success').then((json) => {
       if (json['janus'] !== 'success') {
-      logger.error('Cannot add plugin', json)
+      this.logger.error('Cannot add plugin', json)
       plugin.error(json)
       throw new Error(json)
     }
@@ -145,7 +136,7 @@ class Janus {
       transaction: uuid()
     })
 
-    logger.debug('Janus sending', request)
+    this.logger.debug('Janus sending', request)
     this.ws.send(JSON.stringify(request), {}, (err) => {
       if (err) {
         reject(err)
@@ -192,13 +183,13 @@ class Janus {
     try {
       json = JSON.parse(messageEvent.data)
     } catch (err) {
-      logger.error('cannot parse message', messageEvent.data)
+      this.logger.error('cannot parse message', messageEvent.data)
       return
     }
 
     // logger.debug('JANUS GOT', json)
     if (json['janus'] === 'timeout' && json['session_id'] !== this.sessionId) {
-      logger.debug('GOT timeout from another websocket') // seems like a bug in janus timeout handler :)
+      this.logger.debug('GOT timeout from another websocket') // seems like a bug in janus timeout handler :)
       return
     }
 
@@ -229,13 +220,13 @@ class Janus {
       let sender = json['sender']
       if (!sender) {
         transaction.resolve(json)
-        logger.error('Missing sender for plugindata', json)
+        this.logger.error('Missing sender for plugindata', json)
         return
       }
 
       let pluginHandle = this.pluginHandles[sender]
       if (!pluginHandle) {
-        logger.error('This handle is not attached to this session', json)
+        this.logger.error('This handle is not attached to this session', json)
         return
       }
 
@@ -246,12 +237,12 @@ class Janus {
     if (json['janus'] === 'webrtcup') { // The PeerConnection with the gateway is up! Notify this
       let sender = json['sender']
       if (!sender) {
-        logger.warn('Missing sender...')
+        this.logger.warn('Missing sender...')
         return
       }
       let pluginHandle = this.pluginHandles[sender]
       if (!pluginHandle) {
-        logger.error('This handle is not attached to this session', sender)
+        this.logger.error('This handle is not attached to this session', sender)
         return
       }
       pluginHandle.webrtcState(true)
@@ -261,12 +252,12 @@ class Janus {
     if (json['janus'] === 'hangup') { // A plugin asked the core to hangup a PeerConnection on one of our handles
       let sender = json['sender']
       if (!sender) {
-        logger.warn('Missing sender...')
+        this.logger.warn('Missing sender...')
         return
       }
       let pluginHandle = this.pluginHandles[sender]
       if (!pluginHandle) {
-        logger.error('This handle is not attached to this session', sender)
+        this.logger.error('This handle is not attached to this session', sender)
         return
       }
       pluginHandle.webrtcState(false, json['reason'])
@@ -277,7 +268,7 @@ class Janus {
     if (json['janus'] === 'detached') { // A plugin asked the core to detach one of our handles
       let sender = json['sender']
       if (!sender) {
-        logger.warn('Missing sender...')
+        this.logger.warn('Missing sender...')
         return
       }
       return
@@ -286,12 +277,12 @@ class Janus {
     if (json['janus'] === 'media') { // Media started/stopped flowing
       let sender = json['sender']
       if (!sender) {
-        logger.warn('Missing sender...')
+        this.logger.warn('Missing sender...')
         return
       }
       let pluginHandle = this.pluginHandles[sender]
       if (!pluginHandle) {
-        logger.error('This handle is not attached to this session', sender)
+        this.logger.error('This handle is not attached to this session', sender)
         return
       }
       pluginHandle.mediaState(json['type'], json['receiving'])
@@ -299,16 +290,16 @@ class Janus {
     }
 
     if (json['janus'] === 'slowlink') { // Trouble uplink or downlink
-      logger.debug('Got a slowlink event on session ' + this.sessionId)
-      logger.debug(json)
+      this.logger.debug('Got a slowlink event on session ' + this.sessionId)
+      this.logger.debug(json)
       let sender = json['sender']
       if (!sender) {
-        logger.warn('Missing sender...')
+        this.logger.warn('Missing sender...')
         return
       }
       let pluginHandle = this.pluginHandles[sender]
       if (!pluginHandle) {
-        logger.error('This handle is not attached to this session', sender)
+        this.logger.error('This handle is not attached to this session', sender)
         return
       }
       pluginHandle.slowLink(json['uplink'], json['nacks'])
@@ -317,8 +308,8 @@ class Janus {
 
     if (json['janus'] === 'error') { // Oops, something wrong happened
       if (!json.error || json.error.code !== 458) { // do not log 'No such session' errors ?
-        logger.error('Ooops: ' + json['error'].code + ' ' + json['error'].reason)
-        logger.debug(json)
+        this.logger.error('Ooops: ' + json['error'].code + ' ' + json['error'].reason)
+        this.logger.debug(json)
       }
       let transaction = this.getTransaction(json, true)
       if (transaction && transaction.reject) {
@@ -330,18 +321,18 @@ class Janus {
     if (json['janus'] === 'event') {
       let sender = json['sender']
       if (!sender) {
-        logger.warn('Missing sender...')
+        this.logger.warn('Missing sender...')
         return
       }
       let plugindata = json['plugindata']
       if (plugindata === undefined || plugindata === null) {
-        logger.error('Missing plugindata...')
+        this.logger.error('Missing plugindata...')
         return
       }
 
       let pluginHandle = this.pluginHandles[sender]
       if (!pluginHandle) {
-        logger.error('This handle is not attached to this session', sender)
+        this.logger.error('This handle is not attached to this session', sender)
         return
       }
 
@@ -360,8 +351,8 @@ class Janus {
       return
     }
 
-    logger.warn('Unknown message/event ' + json['janus'] + ' on session ' + this.sessionId)
-    logger.debug(json)
+    this.logger.warn('Unknown message/event ' + json['janus'] + ' on session ' + this.sessionId)
+    this.logger.debug(json)
   }
 
   onClose () {
@@ -370,7 +361,7 @@ class Janus {
     }
 
     this.isConnected = false
-    logger.error('Lost connection to the gateway (is it down?)')
+    this.logger.error('Lost connection to the gateway (is it down?)')
   }
 
   keepAlive (isScheduled) {
@@ -379,11 +370,11 @@ class Janus {
     }
 
     if (isScheduled) {
-      setTimeout(this.keepAlive.bind(this), config.webrtc.server.keepAliveIntervalMs)
+      setTimeout(this.keepAlive.bind(this), this.config.keepAliveIntervalMs)
     } else {
       // logger.debug('Sending Janus keepalive')
       this.transaction('keepalive').then(() => {
-        setTimeout(this.keepAlive.bind(this), config.webrtc.server.keepAliveIntervalMs)
+        setTimeout(this.keepAlive.bind(this), this.config.keepAliveIntervalMs)
     })
     }
   }

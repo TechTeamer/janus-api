@@ -1,9 +1,7 @@
-//const serviceContainer = require('../../service_container') //
 const JanusPlugin = require('../JanusPlugin')
 const VideoRoomListenerJanusPlugin = require('./VideoRoomListenerJanusPlugin')
-//const config = require('../../../config') //
 
-// const clientTypes = ['operator', 'customer']
+// const clientTypes = ['operator', 'customer'] TODO: ????
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   constructor (roomId, roomCodec, isMobile, clientTypes, clientType, mediaOptions, config, serviceContainer, filterDirectCandidates = false) {
@@ -19,6 +17,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.roomCodec = roomCodec
     this.isMobile = isMobile
     this.clientType = clientType
+    this.mediaOptions = mediaOptions
     this.mediaOptions = mediaOptions
     this.pluginName = 'janus.plugin.videoroom'
 
@@ -253,7 +252,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       return this.janus.addPlugin(this.janusListenerPlugin).then(() => {
         this.janusListenerPlugin.on('jsep', (jsep) => {
           if (this.filterDirectCandidates && jsep.sdp) {
-            jsep.sdp = serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
+            jsep.sdp = this.serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
           }
 
           this.emit('videochat:receivingPeer:start', jsep)

@@ -1,4 +1,3 @@
-// const serviceContainer = require('../../service_container')
 const JanusPlugin = require('../JanusPlugin')
 
 class EchoJanusPlugin extends JanusPlugin {
@@ -30,17 +29,6 @@ class EchoJanusPlugin extends JanusPlugin {
       // okay, so the echo test has ended
       this.janus.destroyPlugin(this)
     } else {
-      // DEBUG: DELETE THIS
-      if(!data) {
-        this.serviceContainer.logger.error('NOOOO DATA')
-      }
-      if(data.echotest !== 'event') {
-        this.serviceContainer.logger.error('data.echotest is not event')
-      }
-      if(data.result !== 'done') {
-        this.serviceContainer.logger.error('Not done')
-      }
-      // DEBUG: DELETE THIS
       this.serviceContainer.logger.error('EchoJanusPlugin got unknown message', data, json)
     }
   }

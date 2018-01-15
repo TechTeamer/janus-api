@@ -1,4 +1,3 @@
-// const serviceContainer = require('../../service_container') // TODO: ?
 const JanusPlugin = require('../JanusPlugin')
 
 class VideoRoomListenerJanusPlugin extends JanusPlugin {
