@@ -1,13 +1,13 @@
 const WebSocket = require('ws')
-const config = require('../../config') // TODO: make setConfig method
-const l = require('../logger') // TODO: make setLogger method
+// const config = require('../../config') // TODO: make setConfig method
+// const l = require('../logger') // TODO: make setLogger method
 const JanusPlugin = require('./JanusPlugin')
 const uuid = require('uuid/v4')
 
-let logger = l.channels.janus
+// let logger = l.channels.janus // TODO: ?
 
 class Janus {
-  constructor () {
+  constructor (config, logger) {
     this.ws = undefined
     this.isConnected = false
     this.sessionId = undefined
@@ -16,13 +16,18 @@ class Janus {
     this.transactions = {}
     this.pluginHandles = {}
 
-    this.config = config.webrtc.server
+    this.config = config
     this.protocol = 'janus-protocol'
     this.sendCreate = true
 
     /*
     setInterval(() => { console.log('PENDING JANUS TRANSACTION COUNT', Object.keys(this.transactions).length) }, 1000)
     */
+  }
+
+  // TODO
+  setLogger (logger) {
+
   }
 
   connect () {

@@ -1,12 +1,12 @@
-const serviceContainer = require('../../service_container') // TODO: ?
+//const serviceContainer = require('../../service_container') // TODO: ?
 const JanusPlugin = require('../JanusPlugin')
 const VideoRoomListenerJanusPlugin = require('./VideoRoomListenerJanusPlugin')
-const config = require('../../../config') // TODO: ?
+//const config = require('../../../config') // TODO: ?
 
 const clientTypes = ['operator', 'customer']
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
-  constructor (roomId, roomCodec, isMobile, clientType, mediaOptions, filterDirectCandidates = false) {
+  constructor (roomId, roomCodec, isMobile, clientType, mediaOptions, config, serviceContainer, filterDirectCandidates = false) {
     if (!clientTypes.includes(clientType)) {
       throw new Error('unknown clientType', clientType)
     }
@@ -30,6 +30,9 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.janusListenerPlugin = undefined
 
     this.filterDirectCandidates = !!filterDirectCandidates
+
+    this.config = config
+    this.serviceContainer = serviceContainer
   }
 
   getAttachPayload () {
@@ -105,17 +108,17 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       description: '' + this.roomId,
       record: true,
       videocodec: this.roomCodec,
-      rec_dir: config.webrtc.server.recordDirectory + this.roomId + '/',
+      rec_dir: this.config.webrtc.server.recordDirectory + this.roomId + '/',
       publishers: 20, // a high number to surely avoid race conditions
       videoorient_ext: videoorientExt
     }
 
-    if (config.webrtc.performance) {
-      if (config.webrtc.performance.bitrate) {
-        createRoom.bitrate = config.webrtc.performance.bitrate
+    if (this.config.webrtc.performance) {
+      if (this.config.webrtc.performance.bitrate) {
+        createRoom.bitrate = this.config.webrtc.performance.bitrate
       }
-      if (config.webrtc.performance.firSeconds) {
-        createRoom.fir_freq = config.webrtc.performance.firSeconds
+      if (this.config.webrtc.performance.firSeconds) {
+        createRoom.fir_freq = this.config.webrtc.performance.firSeconds
       }
     }
 
@@ -145,7 +148,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     let jsep = offer
     if (this.filterDirectCandidates && jsep.sdp) {
-      jsep.sdp = serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
+      jsep.sdp = this.serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
     }
 
     return this.transaction('message', { body: configure, jsep }, 'event').then((param) => {
@@ -156,7 +159,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
       let jsep = json.jsep
       if (this.filterDirectCandidates && jsep.sdp) {
-        jsep.sdp = serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
+        jsep.sdp = this.serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
       }
 
       return jsep
@@ -164,7 +167,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   candidate (candidate) {
-    if (this.filterDirectCandidates && candidate.candidate && serviceContainer.sdpHelperService.isDirectCandidate(candidate.candidate)) {
+    if (this.filterDirectCandidates && candidate.candidate && this.serviceContainer.sdpHelperService.isDirectCandidate(candidate.candidate)) {
       return
     }
 
@@ -177,11 +180,11 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     // TOOD unbublished === 'ok' handling : we are unpublished
 
     if (!data || !data.videoroom || !data.videoroom === 'event') {
-      serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
+      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
       return
     }
     if (data.room !== this.janusRoomId) {
-      serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown roomId', this.janusRoomId, json)
+      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown roomId', this.janusRoomId, json)
       return
     }
 
@@ -193,7 +196,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     } else if (Array.isArray(data.publishers)) {
       this.connectRemoteMember(data.publishers)
     } else {
-      serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
+      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
     }
   }
 
@@ -214,22 +217,22 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   connectRemoteMember (publishers) {
     let remoteMember = publishers.find((publisher) => {
       if (!publisher || !publisher.id || !publisher.display) {
-        // serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown publishers', this.janusRoomId, publishers)
+        // this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown publishers', this.janusRoomId, publishers)
         return false
       }
       if (!clientTypes.includes(publisher.display)) {
-        // serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown publisher display name', publishers)
+        // this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown publisher display name', publishers)
         return false
       }
       if (publisher.display === this.clientType) {
-        // serviceContainer.logger.error('VideoRoomPublisherJanusPlugin remoteMember display name is the same', publishers)
+        // this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin remoteMember display name is the same', publishers)
         return false
       }
       return true
     })
 
     if (!remoteMember) {
-      serviceContainer.logger.error('VideoRoomPublisherJanusPlugin no remoteMember to connect', publishers)
+      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin no remoteMember to connect', publishers)
       return Promise.reject(new Error('VideoRoomPublisherJanusPlugin no remoteMember to connect'))
     }
 
@@ -262,7 +265,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   setListenerAnswer (answer) {
     if (!this.janusListenerPlugin) {
-      serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got listener answer without listener', answer)
+      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got listener answer without listener', answer)
       return Promise.reject(new Error('VideoRoomPublisherJanusPlugin got listener answer without listener'))
     }
 
@@ -271,7 +274,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   listenerCandidate (candidate) {
     if (!this.janusListenerPlugin) {
-      serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got candidate answer without listener', candidate)
+      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got candidate answer without listener', candidate)
       return // Promise.reject(new Error('VideoRoomPublisherJanusPlugin got listener answer without listener'))
     }
 
@@ -284,7 +287,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   webrtcState (isReady, cause) {
     if (isReady) {
-      serviceContainer.emitter.emit('videochat:webrtcStream', {
+      this.serviceContainer.emitter.emit('videochat:webrtcStream', {
         roomId: this.roomId,
         clientType: this.clientType,
         janusRoomId: this.janusRoomId,
