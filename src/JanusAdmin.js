@@ -3,7 +3,7 @@ const Janus = require('./Janus')
 class JanusAdmin extends Janus {
   constructor (config, logger) {
     super(config, logger)
-    this.config = config //config.webrtc.admin
+    this.config = config.webrtc.admin
     this.protocol = 'janus-admin-protocol'
     this.sendCreate = false
   }
