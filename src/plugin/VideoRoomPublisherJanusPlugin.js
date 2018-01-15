@@ -1,9 +1,19 @@
 const JanusPlugin = require('../JanusPlugin')
 const VideoRoomListenerJanusPlugin = require('./VideoRoomListenerJanusPlugin')
 
-// const clientTypes = ['operator', 'customer'] TODO: ????
-
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
+  /**
+   *
+   * @param roomId
+   * @param roomCodec
+   * @param isMobile
+   * @param clientTypes
+   * @param clientType
+   * @param mediaOptions
+   * @param config
+   * @param serviceContainer
+   * @param filterDirectCandidates
+   */
   constructor (roomId, roomCodec, isMobile, clientTypes, clientType, mediaOptions, config, serviceContainer, filterDirectCandidates = false) {
     if (!clientTypes.includes(clientType)) {
       throw new Error('unknown clientType', clientType)

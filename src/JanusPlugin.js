@@ -2,6 +2,9 @@ const uuid = require('uuid/v4')
 const EventEmitter = require('events')
 
 class JanusPlugin extends EventEmitter {
+  /**
+   *
+   */
   constructor () {
     super()
     this.id = uuid()

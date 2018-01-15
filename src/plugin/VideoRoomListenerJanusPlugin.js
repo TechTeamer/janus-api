@@ -1,6 +1,16 @@
 const JanusPlugin = require('../JanusPlugin')
 
 class VideoRoomListenerJanusPlugin extends JanusPlugin {
+  /**
+   *
+   * @param roomId
+   * @param janusRoomId
+   * @param roomMemberPrivateId
+   * @param mediaOptions
+   * @param remoteFeedId
+   * @param serviceContainer
+   * @param filterDirectCandidates
+   */
   constructor (roomId, janusRoomId, roomMemberPrivateId, mediaOptions, remoteFeedId, serviceContainer, filterDirectCandidates = false) {
     if (!roomId) {
       throw new Error('unknown roomId')

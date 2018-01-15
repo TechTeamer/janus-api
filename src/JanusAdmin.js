@@ -1,6 +1,11 @@
 const Janus = require('./Janus')
 
 class JanusAdmin extends Janus {
+  /**
+   *
+   * @param config
+   * @param logger
+   */
   constructor (config, logger) {
     super(config, logger)
     this.config = config.webrtc.admin

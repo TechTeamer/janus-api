@@ -3,6 +3,11 @@ const JanusPlugin = require('./JanusPlugin')
 const uuid = require('uuid/v4')
 
 class Janus {
+  /**
+   * 
+   * @param config
+   * @param logger
+   */
   constructor (config, logger) {
     this.ws = undefined
     this.isConnected = false
