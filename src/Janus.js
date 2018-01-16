@@ -17,7 +17,7 @@ class Janus {
     this.transactions = {}
     this.pluginHandles = {}
 
-    this.config = config.webrtc.server
+    this.config = config//config.webrtc.server
     this.protocol = 'janus-protocol'
     this.sendCreate = true
   }
