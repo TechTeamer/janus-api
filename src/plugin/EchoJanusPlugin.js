@@ -1,7 +1,7 @@
 const JanusPlugin = require('../JanusPlugin')
 
 class EchoJanusPlugin extends JanusPlugin {
-  constructor (container, logger, filterDirectCandidates = false) {
+  constructor (container, filterDirectCandidates = false) {
     super()
     this.filterDirectCandidates = !!filterDirectCandidates
     this.janusEchoBody = { audio: true, video: true }
