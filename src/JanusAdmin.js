@@ -8,7 +8,7 @@ class JanusAdmin extends Janus {
    */
   constructor (config, logger) {
     super(config.janus, logger)
-    this.config = config.admin//config.webrtc.admin
+    this.config = config.admin
     this.protocol = 'janus-admin-protocol'
     this.sendCreate = false
   }
