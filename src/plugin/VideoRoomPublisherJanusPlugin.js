@@ -1,7 +1,6 @@
 const JanusPlugin = require('../JanusPlugin')
 const VideoRoomListenerJanusPlugin = require('./VideoRoomListenerJanusPlugin')
 const SdpHelper = require('../SdpHelper')
-const Emitter = require('events') //
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   /**
@@ -44,7 +43,6 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.config = config
     this.logger = logger
     this.clientTypes = clientTypes
-    this.emitter = new Emitter()
     this.sdpHelper = new SdpHelper(this.logger)
   }
 
@@ -300,7 +298,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   webrtcState (isReady, cause) {
     if (isReady) {
-      this.emitter.emit('videochat:webrtcStream', {
+      this.emit('videochat:webrtcStream', {
         roomId: this.roomId,
         clientType: this.clientType,
         janusRoomId: this.janusRoomId,
