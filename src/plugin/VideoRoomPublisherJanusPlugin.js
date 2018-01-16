@@ -1,5 +1,7 @@
 const JanusPlugin = require('../JanusPlugin')
 const VideoRoomListenerJanusPlugin = require('./VideoRoomListenerJanusPlugin')
+const SdpHelper = require('../SdpHelper')
+const Emitter = require('events') //
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   /**
@@ -11,10 +13,9 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
    * @param clientType
    * @param mediaOptions
    * @param config
-   * @param serviceContainer
    * @param filterDirectCandidates
    */
-  constructor (roomId, roomCodec, isMobile, clientTypes, clientType, mediaOptions, config, serviceContainer, filterDirectCandidates = false) {
+  constructor (roomId, roomCodec, isMobile, clientTypes, clientType, mediaOptions, config, logger, filterDirectCandidates = false) {
     if (!clientTypes.includes(clientType)) {
       throw new Error('unknown clientType', clientType)
     }
@@ -41,8 +42,10 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.filterDirectCandidates = !!filterDirectCandidates
 
     this.config = config
-    this.serviceContainer = serviceContainer
+    this.logger = logger
     this.clientTypes = clientTypes
+    this.emitter = new Emitter()
+    this.sdpHelper = new SdpHelper(this.logger)
   }
 
   getAttachPayload () {
@@ -158,7 +161,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     let jsep = offer
     if (this.filterDirectCandidates && jsep.sdp) {
-      jsep.sdp = this.serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
+      jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
     }
 
     return this.transaction('message', { body: configure, jsep }, 'event').then((param) => {
@@ -169,7 +172,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
       let jsep = json.jsep
       if (this.filterDirectCandidates && jsep.sdp) {
-        jsep.sdp = this.serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
+        jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
       }
 
       return jsep
@@ -177,7 +180,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   candidate (candidate) {
-    if (this.filterDirectCandidates && candidate.candidate && this.serviceContainer.sdpHelperService.isDirectCandidate(candidate.candidate)) {
+    if (this.filterDirectCandidates && candidate.candidate && this.sdpHelper.isDirectCandidate(candidate.candidate)) {
       return
     }
 
@@ -190,11 +193,11 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     // TOOD unbublished === 'ok' handling : we are unpublished
 
     if (!data || !data.videoroom || !data.videoroom === 'event') {
-      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
+      this.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
       return
     }
     if (data.room !== this.janusRoomId) {
-      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown roomId', this.janusRoomId, json)
+      this.logger.error('VideoRoomPublisherJanusPlugin got unknown roomId', this.janusRoomId, json)
       return
     }
 
@@ -206,7 +209,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     } else if (Array.isArray(data.publishers)) {
       this.connectRemoteMember(data.publishers)
     } else {
-      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
+      this.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
     }
   }
 
@@ -227,22 +230,22 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   connectRemoteMember (publishers) {
     let remoteMember = publishers.find((publisher) => {
       if (!publisher || !publisher.id || !publisher.display) {
-        // this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown publishers', this.janusRoomId, publishers)
+        // this.logger.error('VideoRoomPublisherJanusPlugin got unknown publishers', this.janusRoomId, publishers)
         return false
       }
       if (!this.clientTypes.includes(publisher.display)) {
-        // this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got unknown publisher display name', publishers)
+        // this.logger.error('VideoRoomPublisherJanusPlugin got unknown publisher display name', publishers)
         return false
       }
       if (publisher.display === this.clientType) {
-        // this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin remoteMember display name is the same', publishers)
+        // this.logger.error('VideoRoomPublisherJanusPlugin remoteMember display name is the same', publishers)
         return false
       }
       return true
     })
 
     if (!remoteMember) {
-      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin no remoteMember to connect', publishers)
+      this.logger.error('VideoRoomPublisherJanusPlugin no remoteMember to connect', publishers)
       return Promise.reject(new Error('VideoRoomPublisherJanusPlugin no remoteMember to connect'))
     }
 
@@ -257,12 +260,12 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     return promise.then(() => {
       this.janusRemoteRoomMemberId = remoteMember.id
-      this.janusListenerPlugin = new VideoRoomListenerJanusPlugin(this.roomId, this.janusRoomId, this.janusRoomPrivateMemberId, this.mediaOptions, remoteMember.id, this.filterDirectCandidates)
+      this.janusListenerPlugin = new VideoRoomListenerJanusPlugin(this.roomId, this.janusRoomId, this.janusRoomPrivateMemberId, this.mediaOptions, remoteMember.id,  this.logger, this.filterDirectCandidates)
 
       return this.janus.addPlugin(this.janusListenerPlugin).then(() => {
         this.janusListenerPlugin.on('jsep', (jsep) => {
           if (this.filterDirectCandidates && jsep.sdp) {
-            jsep.sdp = this.serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
+            jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
           }
 
           this.emit('videochat:receivingPeer:start', jsep)
@@ -275,7 +278,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   setListenerAnswer (answer) {
     if (!this.janusListenerPlugin) {
-      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got listener answer without listener', answer)
+      this.logger.error('VideoRoomPublisherJanusPlugin got listener answer without listener', answer)
       return Promise.reject(new Error('VideoRoomPublisherJanusPlugin got listener answer without listener'))
     }
 
@@ -284,7 +287,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   listenerCandidate (candidate) {
     if (!this.janusListenerPlugin) {
-      this.serviceContainer.logger.error('VideoRoomPublisherJanusPlugin got candidate answer without listener', candidate)
+      this.logger.error('VideoRoomPublisherJanusPlugin got candidate answer without listener', candidate)
       return // Promise.reject(new Error('VideoRoomPublisherJanusPlugin got listener answer without listener'))
     }
 
@@ -297,7 +300,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   webrtcState (isReady, cause) {
     if (isReady) {
-      this.serviceContainer.emitter.emit('videochat:webrtcStream', {
+      this.emitter.emit('videochat:webrtcStream', {
         roomId: this.roomId,
         clientType: this.clientType,
         janusRoomId: this.janusRoomId,

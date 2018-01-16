@@ -1,12 +1,14 @@
 const JanusPlugin = require('../JanusPlugin')
+const SdpHelper = require('../SdpHelper')
 
 class EchoJanusPlugin extends JanusPlugin {
-  constructor (container, filterDirectCandidates = false) {
+  constructor (logger, filterDirectCandidates = false) {
     super()
     this.filterDirectCandidates = !!filterDirectCandidates
     this.janusEchoBody = { audio: true, video: true }
     this.pluginName = 'janus.plugin.echotest'
-    this.serviceContainer = container
+    this.logger = logger
+    this.sdpHelper = new SdpHelper(this.logger)
   }
 
   // TODO: test it
@@ -19,7 +21,7 @@ class EchoJanusPlugin extends JanusPlugin {
 
   connect () {
     return this.transaction('message', { body: this.janusEchoBody }, 'event').catch((err) => {
-      this.serviceContainer.logger.error('EchoJanusPlugin error during connect', err)
+      this.logger.error('EchoJanusPlugin error during connect', err)
       throw err
     })
   }
@@ -29,7 +31,7 @@ class EchoJanusPlugin extends JanusPlugin {
       // okay, so the echo test has ended
       this.janus.destroyPlugin(this)
     } else {
-      this.serviceContainer.logger.error('EchoJanusPlugin got unknown message', data, json)
+      this.logger.error('EchoJanusPlugin got unknown message', data, json)
     }
   }
 
@@ -39,19 +41,19 @@ class EchoJanusPlugin extends JanusPlugin {
       this.transaction('message', sendData, 'event').then((ret) => {
         let {json} = ret
         if (!json || !json.jsep) {
-          this.serviceContainer.logger.error('EchoJanusPlugin, no jsep in the transaction reply', ret)
+          this.logger.error('EchoJanusPlugin, no jsep in the transaction reply', ret)
           return
         }
 
         let jsep = json.jsep
         if (this.filterDirectCandidates && jsep.sdp) {
-          jsep.sdp = this.serviceContainer.sdpHelperService.filterDirectCandidates(jsep.sdp)
+          jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
         }
 
         this.emit('jsep', jsep)
       })
     } else if (data.type === 'candidate') {
-      if (this.filterDirectCandidates && data.message.candidate && this.serviceContainer.sdpHelperService.isDirectCandidate(data.message.candidate)) {
+      if (this.filterDirectCandidates && data.message.candidate && this.sdpHelper.isDirectCandidate(data.message.candidate)) {
         return
       }
       this.transaction('trickle', { candidate: data.message })
