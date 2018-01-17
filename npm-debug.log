@@ -1,0 +1,113 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'publish',
+1 verbose cli   '--access',
+1 verbose cli   'public' ]
+2 info using npm@3.10.10
+3 info using node@v6.12.3
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   escapedName: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/workspace/janus-api',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /home/tunderdomb/.npm/@techteamer/janus-api/1.0.2/package.tgz not in flight; packing
+9 verbose correctMkdir /home/tunderdomb/.npm correctMkdir not in flight; initializing
+10 info lifecycle @techteamer/janus-api@1.0.2~prepublish: @techteamer/janus-api@1.0.2
+11 silly lifecycle @techteamer/janus-api@1.0.2~prepublish: no script for prepublish, continuing
+12 verbose tar pack [ '/home/tunderdomb/.npm/@techteamer/janus-api/1.0.2/package.tgz',
+12 verbose tar pack   '/workspace/janus-api' ]
+13 verbose tarball /home/tunderdomb/.npm/@techteamer/janus-api/1.0.2/package.tgz
+14 verbose folder /workspace/janus-api
+15 verbose addLocalTarball adding from inside cache /home/tunderdomb/.npm/@techteamer/janus-api/1.0.2/package.tgz
+16 verbose correctMkdir /home/tunderdomb/.npm correctMkdir not in flight; initializing
+17 silly cache afterAdd @techteamer/janus-api@1.0.2
+18 verbose afterAdd /home/tunderdomb/.npm/@techteamer/janus-api/1.0.2/package/package.json not in flight; writing
+19 verbose correctMkdir /home/tunderdomb/.npm correctMkdir not in flight; initializing
+20 verbose afterAdd /home/tunderdomb/.npm/@techteamer/janus-api/1.0.2/package/package.json written
+21 silly publish { name: '@techteamer/janus-api',
+21 silly publish   version: '1.0.2',
+21 silly publish   description: 'Janus WebRTC-Gateway API',
+21 silly publish   main: 'index.js',
+21 silly publish   scripts: { test: 'echo "Error: no test specified" && exit 1' },
+21 silly publish   repository:
+21 silly publish    { type: 'git',
+21 silly publish      url: 'git+https://github.com/TechTeamer/janus-api.git' },
+21 silly publish   keywords: [ 'janus', 'webrtc' ],
+21 silly publish   author: { name: 'TechTeamer' },
+21 silly publish   license: 'MIT',
+21 silly publish   bugs: { url: 'https://github.com/TechTeamer/janus-api/issues' },
+21 silly publish   homepage: 'https://github.com/TechTeamer/janus-api#readme',
+21 silly publish   dependencies: { sdp: '^2.5.0', uuid: '^3.1.0', ws: '^4.0.0' },
+21 silly publish   readme: '# Node API for Janus WebRTC Gateway',
+21 silly publish   readmeFilename: 'README.md',
+21 silly publish   gitHead: '2e8772f59d1a256f1ce17e0ac0d9e6b220abcd65',
+21 silly publish   _id: '@techteamer/janus-api@1.0.2',
+21 silly publish   _shasum: '3a7dad735f346a75cf7a5e6795f4a9199f329c74',
+21 silly publish   _from: '.' }
+22 verbose getPublishConfig undefined
+23 silly mapToRegistry name @techteamer/janus-api
+24 silly mapToRegistry scope (from package name) @techteamer
+25 verbose mapToRegistry no registry URL found in name for scope @techteamer
+26 silly mapToRegistry using default registry
+27 silly mapToRegistry registry https://registry.npmjs.org/
+28 silly mapToRegistry data Result {
+28 silly mapToRegistry   raw: '@techteamer/janus-api',
+28 silly mapToRegistry   scope: '@techteamer',
+28 silly mapToRegistry   escapedName: '@techteamer%2fjanus-api',
+28 silly mapToRegistry   name: '@techteamer/janus-api',
+28 silly mapToRegistry   rawSpec: '',
+28 silly mapToRegistry   spec: 'latest',
+28 silly mapToRegistry   type: 'tag' }
+29 silly mapToRegistry uri https://registry.npmjs.org/@techteamer%2fjanus-api
+30 verbose publish registryBase https://registry.npmjs.org/
+31 silly publish uploading /home/tunderdomb/.npm/@techteamer/janus-api/1.0.2/package.tgz
+32 verbose request uri https://registry.npmjs.org/@techteamer%2fjanus-api
+33 verbose request sending authorization for write operation
+34 info attempt registry request try #1 at 2:28:31 PM
+35 verbose request using bearer token for auth
+36 verbose request id 64f00063456233c5
+37 http request PUT https://registry.npmjs.org/@techteamer%2fjanus-api
+38 http 403 https://registry.npmjs.org/@techteamer%2fjanus-api
+39 verbose headers { 'content-type': 'application/json',
+39 verbose headers   'cache-control': 'max-age=0',
+39 verbose headers   'content-length': '91',
+39 verbose headers   'accept-ranges': 'bytes',
+39 verbose headers   date: 'Wed, 17 Jan 2018 13:28:32 GMT',
+39 verbose headers   via: '1.1 varnish',
+39 verbose headers   connection: 'keep-alive',
+39 verbose headers   'x-served-by': 'cache-hhn1548-HHN',
+39 verbose headers   'x-cache': 'MISS',
+39 verbose headers   'x-cache-hits': '0',
+39 verbose headers   'x-timer': 'S1516195712.943677,VS0,VE944' }
+40 verbose request invalidating /home/tunderdomb/.npm/registry.npmjs.org/_40techteamer_252fjanus-api on PUT
+41 error publish Failed PUT 403
+42 verbose stack Error: You cannot publish over the previously published version 1.0.2. : @techteamer/janus-api
+42 verbose stack     at makeError (/usr/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:302:12)
+42 verbose stack     at CachingRegistryClient.<anonymous> (/usr/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:290:14)
+42 verbose stack     at Request._callback (/usr/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:210:14)
+42 verbose stack     at Request.self.callback (/usr/lib/node_modules/npm/node_modules/request/request.js:187:22)
+42 verbose stack     at emitTwo (events.js:106:13)
+42 verbose stack     at Request.emit (events.js:191:7)
+42 verbose stack     at Request.<anonymous> (/usr/lib/node_modules/npm/node_modules/request/request.js:1048:10)
+42 verbose stack     at emitOne (events.js:96:13)
+42 verbose stack     at Request.emit (events.js:188:7)
+42 verbose stack     at IncomingMessage.<anonymous> (/usr/lib/node_modules/npm/node_modules/request/request.js:969:12)
+43 verbose statusCode 403
+44 verbose pkgid @techteamer/janus-api
+45 verbose cwd /workspace/janus-api
+46 error Linux 4.10.0-42-generic
+47 error argv "/usr/bin/node" "/usr/bin/npm" "publish" "--access" "public"
+48 error node v6.12.3
+49 error npm  v3.10.10
+50 error code E403
+51 error You cannot publish over the previously published version 1.0.2. : @techteamer/janus-api
+52 error If you need help, you may report this error at:
+52 error     <https://github.com/npm/npm/issues>
+53 verbose exit [ 1, true ]
