@@ -303,7 +303,8 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         clientType: this.clientType,
         janusRoomId: this.janusRoomId,
         janusRoomMemberId: this.janusRoomMemberId,
-        janusRoomPrivateMemberId: this.janusRoomPrivateMemberId
+        janusRoomPrivateMemberId: this.janusRoomPrivateMemberId,
+        janusSessionId: this.janus.sessionId
       })
     }
 
