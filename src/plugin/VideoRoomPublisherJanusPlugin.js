@@ -304,7 +304,8 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         janusRoomId: this.janusRoomId,
         janusRoomMemberId: this.janusRoomMemberId,
         janusRoomPrivateMemberId: this.janusRoomPrivateMemberId,
-        janusSessionId: this.janus.sessionId
+        janusSessionId: this.janus.sessionId,
+        janusHandleId: this.janusHandleId
       })
     }
 
