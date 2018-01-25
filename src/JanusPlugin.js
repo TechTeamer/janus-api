@@ -37,7 +37,7 @@ class JanusPlugin extends EventEmitter {
   }
 
   onmessage (data, json) {
-    this.janus.logger.error('Unhandled message from janus in a plugin: ' + this.constructor.name)
+    this.janus.logger.error('Unhandled message from janus in a plugin: ' + this.constructor.name, data, json)
   }
 
   oncleanup () {
