@@ -2,16 +2,14 @@ const uuid = require('uuid/v4')
 const EventEmitter = require('events')
 
 class JanusPlugin extends EventEmitter {
-  /**
-   *
-   */
-  constructor () {
+  constructor (logger) {
     super()
     this.id = uuid()
     /** @var Janus */
     this.janus = undefined
     this.janusHandleId = undefined
     this.pluginName = undefined
+    this.logger = logger
   }
 
   getAttachPayload () {
@@ -24,7 +22,6 @@ class JanusPlugin extends EventEmitter {
     return this.janus.transaction(message, payload, replyType)
   }
 
-  // Plugin attached! 'pluginHandle' is our handle
   success (janus, janusHandleId) {
     this.janus = janus
     this.janusHandleId = janusHandleId
@@ -37,7 +34,7 @@ class JanusPlugin extends EventEmitter {
   }
 
   onmessage (data, json) {
-    this.janus.logger.error('Unhandled message from janus in a plugin: ' + this.constructor.name, data, json)
+    this.logger.error('Unhandled message from janus in a plugin: ' + this.constructor.name, data, json)
   }
 
   oncleanup () {

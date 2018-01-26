@@ -3,11 +3,6 @@ const JanusPlugin = require('./JanusPlugin')
 const uuid = require('uuid/v4')
 
 class Janus {
-  /**
-   * 
-   * @param config
-   * @param logger
-   */
   constructor (config, logger) {
     this.ws = undefined
     this.isConnected = false
@@ -22,10 +17,6 @@ class Janus {
     this.sendCreate = true
   }
 
-  setLogger (logger) {
-    this.logger = logger
-  }
-
   connect () {
     if (this.isConnected) {
       return Promise.resolve(this)
@@ -34,50 +25,50 @@ class Janus {
     return new Promise((resolve, reject) => {
       this.ws = new WebSocket(this.config.url, this.protocol, this.config.options)
 
-    this.ws.addEventListener('error', (err) => {
-      this.logger.error('Error connecting to the Janus WebSockets server...', err)
-    this.isConnected = false
-    reject(err)
-  })
+      this.ws.addEventListener('error', (err) => {
+        this.logger.error('Error connecting to the Janus WebSockets server...', err)
+        this.isConnected = false
+        reject(err)
+      })
 
-    this.ws.addEventListener('close', this.cleanupWebSocket.bind(this))
+      this.ws.addEventListener('close', this.cleanupWebSocket.bind(this))
 
-    this.ws.addEventListener('open', () => {
-      if (!this.sendCreate) {
-      this.isConnected = true
-      this.keepAlive(true)
-      return resolve(this)
-    }
+      this.ws.addEventListener('open', () => {
+        if (!this.sendCreate) {
+          this.isConnected = true
+          this.keepAlive(true)
+          return resolve(this)
+        }
 
-    let transaction = uuid()
-    let request = {janus: 'create', transaction}
+        let transaction = uuid()
+        let request = {janus: 'create', transaction}
 
-    this.transactions[transaction] = {
-      resolve: (json) => {
-      if (json.janus !== 'success') {
-      this.logger.error('Cannot connect to Janus', json)
-      reject(json)
-      return
-    }
+        this.transactions[transaction] = {
+          resolve: (json) => {
+            if (json.janus !== 'success') {
+              this.logger.error('Cannot connect to Janus', json)
+              reject(json)
+              return
+            }
 
-    this.sessionId = json.data.id
-    this.isConnected = true
-    this.keepAlive(true)
+            this.sessionId = json.data.id
+            this.isConnected = true
+            this.keepAlive(true)
 
-    this.logger.debug('Janus connected, sessionId: ', this.sessionId)
+            this.logger.debug('Janus connected, sessionId: ', this.sessionId)
 
-    resolve(this)
-  },
-    reject,
-      replyType: 'success'
-  }
+            resolve(this)
+          },
+          reject,
+          replyType: 'success'
+        }
 
-    this.ws.send(JSON.stringify(request))
-  })
+        this.ws.send(JSON.stringify(request))
+      })
 
-    this.ws.addEventListener('message', this.onMessage.bind(this))
-    this.ws.addEventListener('close', this.onClose.bind(this))
-  })
+      this.ws.addEventListener('message', this.onMessage.bind(this))
+      this.ws.addEventListener('close', this.onClose.bind(this))
+    })
   }
 
   /**
@@ -94,15 +85,15 @@ class Janus {
 
     return this.transaction('attach', request, 'success').then((json) => {
       if (json['janus'] !== 'success') {
-      this.logger.error('Cannot add plugin', json)
-      plugin.error(json)
-      throw new Error(json)
-    }
+        this.logger.error('Cannot add plugin', json)
+        plugin.error(json)
+        throw new Error(json)
+      }
 
-    this.pluginHandles[json.data.id] = plugin
+      this.pluginHandles[json.data.id] = plugin
 
-    return plugin.success(this, json.data.id)
-  })
+      return plugin.success(this, json.data.id)
+    })
   }
 
   transaction (type, payload, replyType) {
@@ -113,43 +104,43 @@ class Janus {
 
     return new Promise((resolve, reject) => {
       if (!this.isConnected) {
-      reject(new Error('Janus is not connected'))
-      return
-    }
+        reject(new Error('Janus is not connected'))
+        return
+      }
 
-    let request = Object.assign({}, payload, {
-      janus: type,
-      session_id: (payload && parseInt(payload.session_id, 10)) || this.sessionId,
-      transaction: transactionId
+      let request = Object.assign({}, payload, {
+        janus: type,
+        session_id: (payload && parseInt(payload.session_id, 10)) || this.sessionId,
+        transaction: transactionId
+      })
+
+      this.transactions[request.transaction] = {resolve, reject, replyType}
+      this.ws.send(JSON.stringify(request))
     })
-
-    this.transactions[request.transaction] = {resolve, reject, replyType}
-    this.ws.send(JSON.stringify(request))
-  })
   }
 
   send (type, payload) {
     return new Promise((resolve, reject) => {
       if (!this.isConnected) {
-      reject(new Error('Janus is not connected'))
-      return
-    }
-
-    let request = Object.assign({}, payload, {
-      janus: type,
-      session_id: this.sessionId,
-      transaction: uuid()
-    })
-
-    this.logger.debug('Janus sending', request)
-    this.ws.send(JSON.stringify(request), {}, (err) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve()
+        reject(new Error('Janus is not connected'))
+        return
       }
+
+      let request = Object.assign({}, payload, {
+        janus: type,
+        session_id: this.sessionId,
+        transaction: uuid()
+      })
+
+      this.logger.debug('Janus sending', request)
+      this.ws.send(JSON.stringify(request), {}, (err) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
     })
-  })
   }
 
   destroy () {
@@ -163,24 +154,22 @@ class Janus {
   destroyPlugin (plugin) {
     return new Promise((resolve, reject) => {
       if (!(plugin instanceof JanusPlugin)) {
-      reject(new Error('plugin is not a JanusPlugin'))
-      return
-    }
+        reject(new Error('plugin is not a JanusPlugin'))
+        return
+      }
 
-    if (!this.pluginHandles[plugin.janusHandleId]) {
-      reject(new Error('unknown plugin'))
-      return
-    }
+      if (!this.pluginHandles[plugin.janusHandleId]) {
+        reject(new Error('unknown plugin'))
+        return
+      }
 
-    this.transaction('detach', {plugin: plugin.pluginName, handle_id: plugin.janusHandleId}, 'success').then(() => {
-      delete this.pluginHandles[plugin.pluginName]
-      plugin.detach()
+      this.transaction('detach', {plugin: plugin.pluginName, handle_id: plugin.janusHandleId}, 'success').then(() => {
+        delete this.pluginHandles[plugin.pluginName]
+        plugin.detach()
 
-    resolve()
-  }).catch((err) => {
-      reject(err)
+        resolve()
+      }).catch(reject)
     })
-  })
   }
 
   onMessage (messageEvent) {
@@ -380,7 +369,7 @@ class Janus {
       // logger.debug('Sending Janus keepalive')
       this.transaction('keepalive').then(() => {
         setTimeout(this.keepAlive.bind(this), this.config.keepAliveIntervalMs)
-    })
+      })
     }
   }
 
@@ -410,9 +399,9 @@ class Janus {
 
     Object.keys(this.transactions).forEach((transaction) => {
       if (transaction.reject) {
-      transaction.reject()
-    }
-  })
+        transaction.reject()
+      }
+    })
     this.transactions = {}
   }
 }

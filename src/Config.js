@@ -1,5 +1,5 @@
 class JanusConfig {
-  constructor(config) {
+  constructor (config) {
     let {
       url,
       keepAliveIntervalMs,
@@ -20,7 +20,7 @@ class JanusConfig {
 }
 
 class JanusAdminConfig extends JanusConfig {
-  constructor(janusConfig, adminConfig) {
+  constructor (janusConfig, adminConfig) {
     super(janusConfig)
     let {
       url,

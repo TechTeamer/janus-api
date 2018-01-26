@@ -7,7 +7,6 @@ const VideoRoomPublisherJanusPlugin = require('./src/plugin/VideoRoomPublisherJa
 const { JanusConfig } = require('./src/Config')
 const { JanusAdminConfig } = require('./src/Config')
 
-
 module.exports.Janus = Janus
 module.exports.JanusAdmin = JanusAdmin
 module.exports.JanusPlugin = JanusPlugin

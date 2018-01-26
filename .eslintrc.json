@@ -1,0 +1,14 @@
+{
+  "extends": "standard",
+  "rules": {
+    "curly": "error",
+    "guard-for-in": "error",
+    "no-console": "error",
+    "no-debugger": "error"
+  },
+  "env": {
+    "node": true,
+    "commonjs": true,
+    "es6": true
+  }
+}

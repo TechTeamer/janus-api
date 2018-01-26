@@ -2,17 +2,7 @@ const JanusPlugin = require('../JanusPlugin')
 const SdpHelper = require('../SdpHelper')
 
 class VideoRoomListenerJanusPlugin extends JanusPlugin {
-  /**
-   *
-   * @param roomId
-   * @param janusRoomId
-   * @param roomMemberPrivateId
-   * @param mediaOptions
-   * @param remoteFeedId
-   * @param logger
-   * @param filterDirectCandidates
-   */
-  constructor (roomId, janusRoomId, roomMemberPrivateId, mediaOptions, remoteFeedId, logger, filterDirectCandidates = false) {
+  constructor (roomId, janusRoomId, roomMemberPrivateId, remoteFeedId, logger, filterDirectCandidates = false) {
     if (!roomId) {
       throw new Error('unknown roomId')
     }
@@ -20,28 +10,14 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
       throw new Error('unknown janusRoomPrivateMemberId')
     }
 
-    super()
+    super(logger)
     this.roomId = roomId
     this.janusRoomId = janusRoomId
     this.pluginName = 'janus.plugin.videoroom'
     this.janusRoomPrivateMemberId = roomMemberPrivateId
     this.janusRemoteFeedId = remoteFeedId
-    this.mediaOptions = mediaOptions
     this.filterDirectCandidates = !!filterDirectCandidates
-    this.logger = logger
     this.sdpHelper = new SdpHelper(this.logger)
-  }
-
-  getAttachPayload () {
-    let payload = super.getAttachPayload()
-    if (this.mediaOptions && this.mediaOptions['force-bundle']) {
-      payload['force-bundle'] = true
-    }
-    if (this.mediaOptions && this.mediaOptions['force-rtcp-mux']) {
-      payload['force-rtcp-mux'] = true
-    }
-
-    return payload
   }
 
   join () {
@@ -67,7 +43,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
         this.emit('jsep', jsep)
         resolve(jsep)
       }).catch((err) => {
-        this.janus.logger.error('VideoRoomListenerJanusPlugin, unknown error connecting to room', err, join)
+        this.logger.error('VideoRoomListenerJanusPlugin, unknown error connecting to room', err, join)
         reject(err)
       })
     })
@@ -86,12 +62,12 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
         let {data, json} = param || {}
 
         if (!data || data.started !== 'ok') {
-          this.serviceContainer.logger.error('VideoRoomListenerJanusPlugin set answer is not ok', data, json)
+          this.logger.error('VideoRoomListenerJanusPlugin set answer is not ok', data, json)
           throw new Error('VideoRoomListenerJanusPlugin set answer is not ok')
         }
         resolve()
       }).catch((err) => {
-        this.janus.logger.error('VideoRoomListenerJanusPlugin, unknown error sending answer', err, answer)
+        this.logger.error('VideoRoomListenerJanusPlugin, unknown error sending answer', err, answer)
         reject(err)
       })
     })
@@ -103,6 +79,10 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
     }
 
     return this.transaction('trickle', { candidate })
+  }
+
+  detach () {
+    this.removeAllListeners('jsep')
   }
 }
 

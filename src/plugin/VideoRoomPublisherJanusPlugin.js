@@ -3,18 +3,7 @@ const VideoRoomListenerJanusPlugin = require('./VideoRoomListenerJanusPlugin')
 const SdpHelper = require('../SdpHelper')
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
-  /**
-   *
-   * @param roomId
-   * @param roomCodec
-   * @param isMobile
-   * @param clientTypes
-   * @param clientType
-   * @param mediaOptions
-   * @param config
-   * @param filterDirectCandidates
-   */
-  constructor (roomId, roomCodec, isMobile, clientTypes, clientType, mediaOptions, config, logger, filterDirectCandidates = false) {
+  constructor (roomId, roomCodec, isMobile, clientTypes, clientType, config, logger, filterDirectCandidates = false) {
     if (!clientTypes.includes(clientType)) {
       throw new Error('unknown clientType', clientType)
     }
@@ -22,13 +11,11 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       throw new Error('unknown roomId')
     }
 
-    super()
+    super(logger)
     this.roomId = roomId
     this.roomCodec = roomCodec
     this.isMobile = isMobile
     this.clientType = clientType
-    this.mediaOptions = mediaOptions
-    this.mediaOptions = mediaOptions
     this.pluginName = 'janus.plugin.videoroom'
 
     this.janusRoomId = undefined
@@ -41,28 +28,15 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.filterDirectCandidates = !!filterDirectCandidates
 
     this.config = config
-    this.logger = logger
     this.clientTypes = clientTypes
     this.sdpHelper = new SdpHelper(this.logger)
-  }
-
-  getAttachPayload () {
-    let payload = super.getAttachPayload()
-    if (this.mediaOptions && this.mediaOptions['force-bundle']) {
-      payload['force-bundle'] = true
-    }
-    if (this.mediaOptions && this.mediaOptions['force-rtcp-mux']) {
-      payload['force-rtcp-mux'] = true
-    }
-
-    return payload
   }
 
   connect () {
     return this.transaction('message', { body: { request: 'list' } }, 'success').then((param) => {
       let {data} = param || {}
       if (!data || !Array.isArray(data.list)) {
-        this.janus.logger.error('VideoRoomPublisherJanusPlugin, could not find roomList', data)
+        this.logger.error('VideoRoomPublisherJanusPlugin, could not find roomList', data)
         throw new Error('VideoRoomPublisherJanusPlugin, could not find roomList')
       }
 
@@ -74,7 +48,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         return this.createRoom()
       }
     }).catch((err) => {
-      this.janus.logger.error('VideoRoomPublisherJanusPlugin, cannot list rooms', err)
+      this.logger.error('VideoRoomPublisherJanusPlugin, cannot list rooms', err)
       throw err
     })
   }
@@ -86,7 +60,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       this.transaction('message', {body: join}, 'event').then((param) => {
         let {data} = param || {}
         if (!data || !data.id || !data.private_id || !data.publishers) {
-          this.janus.logger.error('VideoRoomPublisherJanusPlugin, could not join room', data)
+          this.logger.error('VideoRoomPublisherJanusPlugin, could not join room', data)
           throw new Error('VideoRoomPublisherJanusPlugin, could not join room')
         }
         this.janusRoomMemberId = data.id
@@ -101,7 +75,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         if (err && err['error_code'] === 426) { // JANUS_VIDEOROOM_ERROR_NO_SUCH_ROOM = 426
           this.createRoom().then(resolve).catch(reject)
         } else {
-          this.janus.logger.error('VideoRoomPublisherJanusPlugin, unknown error connecting to room', err)
+          this.logger.error('VideoRoomPublisherJanusPlugin, unknown error connecting to room', err)
           reject(err)
         }
       })
@@ -136,7 +110,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     return this.transaction('message', { body: createRoom }, 'success').then((param) => {
       let {data} = param || {}
       if (!data || !data.room) {
-        this.janus.logger.error('VideoRoomPublisherJanusPlugin, could not create room', data)
+        this.logger.error('VideoRoomPublisherJanusPlugin, could not create room', data)
         throw new Error('VideoRoomPublisherJanusPlugin, could not create room')
       }
 
@@ -144,14 +118,14 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
       return this.join()
     }).catch((err) => {
-      this.janus.logger.logger('VideoRoomPublisherJanusPlugin, cannot create room', err)
+      this.logger.logger('VideoRoomPublisherJanusPlugin, cannot create room', err)
       throw err
     })
   }
 
   configure (offer) {
     if (!this.janusRoomMemberId) {
-      this.janus.logger('VideoRoomPublisherJanusPlugin, cannot configure without janusRoomMemberId')
+      this.logger('VideoRoomPublisherJanusPlugin, cannot configure without janusRoomMemberId')
       return
     }
 
@@ -258,7 +232,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     return promise.then(() => {
       this.janusRemoteRoomMemberId = remoteMember.id
-      this.janusListenerPlugin = new VideoRoomListenerJanusPlugin(this.roomId, this.janusRoomId, this.janusRoomPrivateMemberId, this.mediaOptions, remoteMember.id,  this.logger, this.filterDirectCandidates)
+      this.janusListenerPlugin = new VideoRoomListenerJanusPlugin(this.roomId, this.janusRoomId, this.janusRoomPrivateMemberId, remoteMember.id, this.logger, this.filterDirectCandidates)
 
       return this.janus.addPlugin(this.janusListenerPlugin).then(() => {
         this.janusListenerPlugin.on('jsep', (jsep) => {
@@ -293,7 +267,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   mediaState (medium, on) {
-    this.janus.logger.debug('JANUS mediaState', this.roomId, this.clientType, medium, on)
+    this.logger.debug('JANUS mediaState', this.roomId, this.clientType, medium, on)
   }
 
   webrtcState (isReady, cause) {
@@ -309,13 +283,14 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       })
     }
 
-    // this.janus.logger.debug('JANUS webrtcState', this.roomId, this.clientType, isReady, cause)
+    // this.logger.debug('JANUS webrtcState', this.roomId, this.clientType, isReady, cause)
   }
 
   detach () {
     return this.disconnectRemoteMember().then(() => {
       this.removeAllListeners('videochat:receivingPeer:stop')
       this.removeAllListeners('videochat:receivingPeer:start')
+      this.removeAllListeners('videochat:webrtcStream')
     })
   }
 }

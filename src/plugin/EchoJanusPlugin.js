@@ -3,18 +3,16 @@ const SdpHelper = require('../SdpHelper')
 
 class EchoJanusPlugin extends JanusPlugin {
   constructor (logger, filterDirectCandidates = false) {
-    super()
+    super(logger)
     this.filterDirectCandidates = !!filterDirectCandidates
     this.janusEchoBody = { audio: true, video: true }
     this.pluginName = 'janus.plugin.echotest'
-    this.logger = logger
     this.sdpHelper = new SdpHelper(this.logger)
   }
 
-  // TODO: test it
   mute (isMuted = false) {
     return this.transaction('message', { audio: !isMuted }, 'success').catch((err) => {
-      this.janus.logger.error('EchoJanusPlugin, cannot mute', err)
+      this.logger.error('EchoJanusPlugin, cannot mute', err)
       throw err
     })
   }
@@ -58,8 +56,12 @@ class EchoJanusPlugin extends JanusPlugin {
       }
       this.transaction('trickle', { candidate: data.message })
     } else {
-      this.serviceContainer.logger.error('EchoTransportSession unknown data type', data)
+      this.logger.error('EchoTransportSession unknown data type', data)
     }
+  }
+
+  detach () {
+    this.removeAllListeners('jsep')
   }
 }
 
