@@ -4,7 +4,8 @@
   "description": "Janus WebRTC-Gateway API",
   "main": "index.js",
   "scripts": {
-    "test": "eslint ."
+    "test": "eslint .",
+    "build-test": "node ./test/buildtest.js"
   },
   "repository": {
     "type": "git",
@@ -26,11 +27,14 @@
     "ws": "^4.0.0"
   },
   "devDependencies": {
+    "browserify": "^15.2.0",
     "eslint": "^4.16.0",
     "eslint-config-standard": "^11.0.0-beta.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1"
+    "eslint-plugin-standard": "^3.0.1",
+    "http-server": "^0.11.1",
+    "webrtc-adapter": "^6.1.0"
   }
 }
