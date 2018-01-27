@@ -10,36 +10,36 @@ class RecordPlayJanusPlugin extends JanusPlugin {
     this.sdpHelper = new SdpHelper(this.logger)
   }
 
-  mute (isMuted = false) {
-    return this.transaction('message', { audio: !isMuted }, 'success').catch((err) => {
-      this.logger.error('EchoJanusPlugin, cannot mute', err)
-      throw err
-    })
-  }
-
-  connect () {
-    return this.transaction('message', { body: this.janusEchoBody }, 'event').catch((err) => {
-      this.logger.error('EchoJanusPlugin error during connect', err)
+  configure (videoBitrateMax = 1024 * 1024, videoKeyframeInterval = 15000) {
+    return this.transaction('message', { body: { request: 'configure', 'video-bitrate-max': videoBitrateMax, 'video-keyframe-interval': videoKeyframeInterval } }, 'success').catch((err) => {
+      this.logger.error('RecordPlayJanusPlugin, cannot configure', err)
       throw err
     })
   }
 
   onmessage (data, json) {
-    if (data && data.echotest === 'event' && data.result === 'done') {
-      // okay, so the echo test has ended
+    if (data && data.recordplay === 'event' && data.result === 'done') {
+      // okay, so the recording has ended
       this.janus.destroyPlugin(this)
     } else {
-      this.logger.error('EchoJanusPlugin got unknown message', data, json)
+      this.logger.error('RecordPlayJanusPlugin got unknown message', data, json)
     }
   }
 
   consume (data) {
     if (data.type === 'message') {
-      let sendData = { jsep: data.message.jsep, body: this.janusEchoBody }
+      let sendData = { jsep: data.message.jsep, body: { request: 'record', name: 'hello' } }
       this.transaction('message', sendData, 'event').then((ret) => {
-        let {json} = ret
+        let {json, data} = ret
+        if (!data || !data.result || !data.result.id) {
+          this.logger.error('RecordPlayJanusPlugin, no recording id in the transaction reply', ret)
+          return
+        }
+
+        this.emit('recordingId', data.result.id)
+
         if (!json || !json.jsep) {
-          this.logger.error('EchoJanusPlugin, no jsep in the transaction reply', ret)
+          this.logger.error('RecordPlayJanusPlugin, no jsep in the transaction reply', ret)
           return
         }
 
@@ -55,13 +55,32 @@ class RecordPlayJanusPlugin extends JanusPlugin {
         return
       }
       this.transaction('trickle', { candidate: data.message })
+    } else if (data.type === 'stop') {
+      let sendData = { body: { request: 'stop' } }
+      this.transaction('message', sendData, 'event')
     } else {
-      this.logger.error('EchoTransportSession unknown data type', data)
+      this.logger.error('RecordPlayJanusPlugin unknown data type', data)
     }
+  }
+
+  slowLink () {
+    this.emit('slowlink')
+  }
+
+  mediaState (medium, on) {
+    this.emit('mediaState', medium, on)
+  }
+
+  webrtcState (isReady, cause) {
+    this.emit('webrtcState', isReady, cause)
   }
 
   detach () {
     this.removeAllListeners('jsep')
+    this.removeAllListeners('recordingId')
+    this.removeAllListeners('slowlink')
+    this.removeAllListeners('mediaState')
+    this.removeAllListeners('webrtcState')
   }
 }
 
