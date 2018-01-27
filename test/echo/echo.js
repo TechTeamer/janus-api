@@ -23,7 +23,7 @@ janus.connect().then(() => {
 
       peerConnection.onicecandidate = (event) => {
         if (!event.candidate || !event.candidate.candidate) {
-          echo.consume({ type: 'candidate', message: { completed: true} })
+          echo.consume({ type: 'candidate', message: { completed: true } })
         } else {
           let candidate = {
             candidate: event.candidate.candidate,

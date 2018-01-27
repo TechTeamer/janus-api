@@ -1,5 +1,4 @@
 
-
 module.exports = {
   janus: {
     'url': 'wss://localhost:8989',

@@ -32,7 +32,7 @@ document.getElementById('start').addEventListener('click', () => {
 
       peerConnection.onicecandidate = (event) => {
         if (!event.candidate || !event.candidate.candidate) {
-          record.consume({ type: 'candidate', message: { completed: true} })
+          record.consume({ type: 'candidate', message: { completed: true } })
         } else {
           let candidate = {
             candidate: event.candidate.candidate,

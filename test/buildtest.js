@@ -16,7 +16,6 @@ let pack = (input, output) => {
     })
 }
 
-
 pack('./test/echo/echo.js', './test/echo/echo.bundle.js')
 pack('./test/recordplay/recordplay.js', './test/recordplay/recordplay.bundle.js')
 
