@@ -1,4 +1,4 @@
-/* eslint-disable no-console, no-undef */
+/* eslint-disable no-console, no-undef, no-unused-vars */
 
 const adapter = require('webrtc-adapter')
 const common = require('../common')
@@ -19,10 +19,41 @@ janus.connect().then(() => {
     return echo.connect().then(() => {
       console.log('EchoJanusPlugin connected')
 
+      let peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
+
+      peerConnection.onicecandidate = (event) => {
+        if (!event.candidate || !event.candidate.candidate) {
+          echo.consume({ type: 'candidate', message: { completed: true} })
+        } else {
+          let candidate = {
+            candidate: event.candidate.candidate,
+            sdpMid: event.candidate.sdpMid,
+            sdpMLineIndex: event.candidate.sdpMLineIndex
+          }
+          echo.consume({ type: 'candidate', message: candidate })
+        }
+      }
+
+
+      peerConnection.onaddstream = (mediaStreamEvent) => {
+        console.log('GOT STREAM', mediaStreamEvent)
+
+        let videoElement = document.getElementById('video')
+        videoElement.srcObject = mediaStreamEvent.stream
+        videoElement.play()
+      }
+
+      echo.on('jsep', (jsep) => {
+        console.log('GOT answer from EchoJanusPlugin', jsep)
+
+        peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => {
+          console.log('remoteDescription set')
+        })
+      })
+
       return navigator.mediaDevices.getUserMedia({audio: true, video: true}).then((stream) => {
         console.log('getUserMedia got stream')
 
-        let peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
         peerConnection.addStream(stream)
 
         return peerConnection.createOffer({offerToReceiveAudio: true, offerToReceiveVideo: true}).then((offer) => {
@@ -30,9 +61,9 @@ janus.connect().then(() => {
 
           return peerConnection.setLocalDescription(offer).then(() => {
             console.log('setlocalDescription')
-            let jsep = {type: offer.type, sdp: offer.sdp}
+            let jsep = { type: offer.type, sdp: offer.sdp }
 
-            echo.message({jsep})
+            echo.consume({ type: 'message', message: { jsep: jsep } })
           })
         })
       })
