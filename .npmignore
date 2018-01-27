@@ -1,3 +1,5 @@
 .idea
 yarn.lock
 .eslintrc.json
+.eslintignore
+test

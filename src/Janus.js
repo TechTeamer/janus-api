@@ -1,4 +1,4 @@
-const WebSocket = require('ws')
+const WebSocket = require('./WebSocket')
 const JanusPlugin = require('./JanusPlugin')
 const uuid = require('uuid/v4')
 

@@ -47,35 +47,24 @@ class JanusPlugin extends EventEmitter {
     // The plugin handle is not valid anymore
   }
 
-  slowLink () {
-    // this callback is triggered when Janus reports trouble either sending or receiving media
-    // on the specified PeerConnection, typically as a consequence of too many NACKs received
-    // from/sent to the user in the last second: for instance, a slowLink with uplink=true means
-    // you notified several missing packets from Janus, while uplink=false means
-    // Janus is not receiving all your packets; useful to figure out when there are problems
-    // on the media path (e.g., excessive loss), in order to possibly react accordingly
-    // (e.g., decrease the bitrate if most of our packets are getting lost);
-  }
-
-  mediaState (medium, on) {
-    // console.log("Janus " + (on ? "started" : "stopped") + " receiving our " + medium)
-  }
-
-  webrtcState (isReady, cause) {
-    // this callback is triggered with a true value when the PeerConnection associated
-    // to a handle becomes active (so ICE, DTLS and everything else succeeded) from
-    // the Janus perspective, while false is triggered when the PeerConnection goes down instead;
-    // useful to figure out when WebRTC is actually up and running between you and Janus (
-    // e.g., to notify a user they're actually now active in a conference); notice
-    // that in case of false a reason string may be present as an optional parameter;
-  }
-
   hangup () {
     // A plugin asked the core to hangup a PeerConnection on one of our handles
   }
 
-  detach () {
+  slowLink () {
+    this.emit('slowlink')
+  }
 
+  mediaState (medium, on) {
+    this.emit('mediaState', medium, on)
+  }
+
+  webrtcState (isReady, cause) {
+    this.emit('webrtcState', isReady, cause)
+  }
+
+  detach () {
+    this.removeAllListeners()
   }
 }
 

@@ -59,10 +59,6 @@ class EchoJanusPlugin extends JanusPlugin {
       this.logger.error('EchoTransportSession unknown data type', data)
     }
   }
-
-  detach () {
-    this.removeAllListeners('jsep')
-  }
 }
 
 module.exports = EchoJanusPlugin
