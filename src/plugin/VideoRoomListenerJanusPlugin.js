@@ -80,10 +80,6 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
 
     return this.transaction('trickle', { candidate })
   }
-
-  detach () {
-    this.removeAllListeners('jsep')
-  }
 }
 
 module.exports = VideoRoomListenerJanusPlugin

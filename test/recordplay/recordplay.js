@@ -43,6 +43,10 @@ document.getElementById('start').addEventListener('click', () => {
         }
       }
 
+      record.on('recordingId', (recordingId) => {
+        console.log('recordingId', recordingId)
+      })
+
       record.on('jsep', (jsep) => {
         console.log('GOT answer from RecordPlayJanusPlugin', jsep)
 

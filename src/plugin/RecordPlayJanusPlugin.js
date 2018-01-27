@@ -62,26 +62,6 @@ class RecordPlayJanusPlugin extends JanusPlugin {
       this.logger.error('RecordPlayJanusPlugin unknown data type', data)
     }
   }
-
-  slowLink () {
-    this.emit('slowlink')
-  }
-
-  mediaState (medium, on) {
-    this.emit('mediaState', medium, on)
-  }
-
-  webrtcState (isReady, cause) {
-    this.emit('webrtcState', isReady, cause)
-  }
-
-  detach () {
-    this.removeAllListeners('jsep')
-    this.removeAllListeners('recordingId')
-    this.removeAllListeners('slowlink')
-    this.removeAllListeners('mediaState')
-    this.removeAllListeners('webrtcState')
-  }
 }
 
 module.exports = RecordPlayJanusPlugin

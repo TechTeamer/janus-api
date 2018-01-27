@@ -193,7 +193,6 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     }
 
     return this.janus.destroyPlugin(this.janusListenerPlugin).then(() => {
-      this.janusListenerPlugin.removeAllListeners('jsep')
       this.janusListenerPlugin = undefined
       this.emit('videochat:receivingPeer:stop')
     })
@@ -282,15 +281,11 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         janusHandleId: this.janusHandleId
       })
     }
-
-    // this.logger.debug('JANUS webrtcState', this.roomId, this.clientType, isReady, cause)
   }
 
   detach () {
     return this.disconnectRemoteMember().then(() => {
-      this.removeAllListeners('videochat:receivingPeer:stop')
-      this.removeAllListeners('videochat:receivingPeer:start')
-      this.removeAllListeners('videochat:webrtcStream')
+      super.detach()
     })
   }
 }
