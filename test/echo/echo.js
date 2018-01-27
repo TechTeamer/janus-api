@@ -34,7 +34,6 @@ janus.connect().then(() => {
         }
       }
 
-
       peerConnection.onaddstream = (mediaStreamEvent) => {
         console.log('GOT STREAM', mediaStreamEvent)
 
