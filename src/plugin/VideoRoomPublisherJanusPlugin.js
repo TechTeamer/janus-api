@@ -20,7 +20,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     this.filterDirectCandidates = !!filterDirectCandidates
 
-    this.config = config
+    this.config = config.janus
     this.sdpHelper = new SdpHelper(this.logger)
   }
 
