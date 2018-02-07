@@ -1,6 +1,6 @@
 {
   "name": "@techteamer/janus-api",
-  "version": "1.1.2",
+  "version": "2.0.0",
   "description": "Janus WebRTC-Gateway API",
   "main": "index.js",
   "scripts": {
