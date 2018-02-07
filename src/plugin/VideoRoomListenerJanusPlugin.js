@@ -88,11 +88,8 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
   }
 
   hangup () {
-    this.emit('hangup')
-  }
-
-  onmessage (data, json) {
-    this.logger.debug('VideoRoomListenerJanusPlugin@onmessage', data, json)
+    super.hangup()
+    this.janus.destroyPlugin(this)
   }
 }
 

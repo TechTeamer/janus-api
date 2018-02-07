@@ -1,9 +1,15 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
 
 const adapter = require('webrtc-adapter')
-const { JanusConfig } = require('../../src/Config')
+const { JanusConfig, JanusRoomConfig } = require('../../src/Config')
 const common = require('../common')
 const config = new JanusConfig(common.janus)
+const roomConfig = new JanusRoomConfig({
+  id: 1,
+  codec: 'vp8,vp9,h264',
+  record: true,
+  videoOrientExt: false
+})
 
 const VideoRoomPublisherJanusPlugin = require('../../src/plugin/VideoRoomPublisherJanusPlugin')
 const Janus = require('../../src/Janus')
@@ -13,17 +19,19 @@ let janus = new Janus(config, console)
 janus.connect().then(() => {
   console.log('Janus connected')
 
-  let publisher = new VideoRoomPublisherJanusPlugin(1, 'vp8', false, 'operator', config, console, false)
+  let publisher = new VideoRoomPublisherJanusPlugin(roomConfig, 'operator', config, console, false)
 
   return janus.addPlugin(publisher).then(() => {
     console.log('VideoRoomPublisherJanusPlugin added')
 
-    publisher.on('videochat:VideoRoomPublisherPlugin:connectRemoteMember', (data) => {
-      console.log('CONNECT REMOTE MEMBER:', data)
+    publisher.on('remoteMemberUnpublished', (data) => {
+      console.log('remoteMemberUnpublished', data)
     })
-
-    publisher.on('videochat:VideoRoomPublisherPlugin:disconnectRemoteMember', (data) => {
-      console.log('DISCONNECT REMOTE MEMBER:', data)
+    publisher.on('remoteMemberLeaving', (data) => {
+      console.log('remoteMemberLeaving', data)
+    })
+    publisher.on('publishersUpdated', (data) => {
+      console.log('publishersUpdated', data)
     })
 
     return publisher.connect().then(() => {

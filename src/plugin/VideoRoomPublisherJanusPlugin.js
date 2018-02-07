@@ -2,15 +2,12 @@ const JanusPlugin = require('../JanusPlugin')
 const SdpHelper = require('../SdpHelper')
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
-  constructor (roomId, roomCodec, isMobile, display, config, logger, filterDirectCandidates = false) {
-    if (!roomId) {
-      throw new Error('unknown roomId')
+  constructor (roomConfig, display, config, logger, filterDirectCandidates = false) {
+    if (!roomConfig) {
+      throw new Error('unknown roomConfig')
     }
 
     super(logger)
-    this.roomId = roomId
-    this.roomCodec = roomCodec
-    this.isMobile = isMobile
     this.display = display
     this.pluginName = 'janus.plugin.videoroom'
 
@@ -20,6 +17,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     this.filterDirectCandidates = !!filterDirectCandidates
 
+    this.room = roomConfig.room
     this.config = config.janus
     this.sdpHelper = new SdpHelper(this.logger)
   }
@@ -71,19 +69,14 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   createRoom () {
-    let videoorientExt
-    if (this.roomCodec === 'h264' || this.isMobile) {
-      videoorientExt = false
-    }
-
     let createRoom = {
       request: 'create',
-      description: '' + this.roomId,
-      record: true,
-      videocodec: this.roomCodec,
+      description: '' + this.room.id,
+      record: this.room.record,
+      videocodec: this.room.roomCodec,
       rec_dir: this.config.recordDirectory + this.roomId + '/',
       publishers: 20, // a high number to surely avoid race conditions
-      videoorient_ext: videoorientExt
+      videoorient_ext: this.room.videoOrientExt
     }
 
     if (this.config.bitrate) {
@@ -155,20 +148,17 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
       return
     }
-    if (!data || !data.videoroom || !data.videoroom === 'event') {
-      this.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
-      return
-    }
     if (room !== this.janusRoomId) {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown roomId', this.janusRoomId, json)
       return
     }
 
-    if (unpublished || leaving) {
-      let leavingId = unpublished || leaving
-      this.emit('disconnectRemoteMember', leavingId)
+    if (unpublished) {
+      this.emit('remoteMemberUnpublished', unpublished)
+    } else if (leaving) {
+      this.emit('remoteMemberLeaving', leaving)
     } else if (Array.isArray(publishers)) {
-      this.emit('connectRemoteMember', publishers)
+      this.emit('publishersUpdated', publishers)
     } else {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
     }
@@ -190,10 +180,6 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         janusHandleId: this.janusHandleId
       })
     }
-  }
-
-  detach () {
-    super.detach()
   }
 }
 

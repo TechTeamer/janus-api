@@ -43,5 +43,23 @@ class JanusAdminConfig extends JanusConfig {
   }
 }
 
+class JanusRoomConfig {
+  constructor (config) {
+    let {
+      id,
+      codec,
+      record,
+      videoOrientExt
+    } = config
+
+    this.room = {}
+    this.room.id = id
+    this.room.codec = codec
+    this.room.record = record
+    this.room.videoOrientExt = videoOrientExt
+  }
+}
+
 module.exports.JanusConfig = JanusConfig
 module.exports.JanusAdminConfig = JanusAdminConfig
+module.exports.JanusRoomConfig = JanusRoomConfig

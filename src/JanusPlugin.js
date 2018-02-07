@@ -48,7 +48,7 @@ class JanusPlugin extends EventEmitter {
   }
 
   hangup () {
-    // A plugin asked the core to hangup a PeerConnection on one of our handles
+    this.emit('hangup')
   }
 
   slowLink () {

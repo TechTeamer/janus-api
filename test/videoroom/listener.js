@@ -76,8 +76,17 @@ function connect () {
 
       listener.on('hangup', () => {
         let videoElement = document.getElementById('video')
-        videoElement.pause()
         videoElement.srcObject = null
+
+        console.log('HANGUP')
+      })
+
+      listener.on('connectRemoteMember', (data) => {
+        console.log('CONNECT REMOTE MEMBER:', data)
+      })
+
+      listener.on('disconnectRemoteMember', (data) => {
+        console.log('DISCONNECT REMOTE MEMBER:', data)
       })
 
       return listener.join()

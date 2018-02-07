@@ -5,7 +5,7 @@ const EchoJanusPlugin = require('./src/plugin/EchoJanusPlugin')
 const RecordPlayJanusPlugin = require('./src/plugin/RecordPlayJanusPlugin')
 const VideoRoomListenerJanusPlugin = require('./src/plugin/VideoRoomListenerJanusPlugin')
 const VideoRoomPublisherJanusPlugin = require('./src/plugin/VideoRoomPublisherJanusPlugin')
-const { JanusConfig, JanusAdminConfig } = require('./src/Config')
+const { JanusConfig, JanusAdminConfig, JanusRoomConfig } = require('./src/Config')
 
 module.exports = {
   Janus,
@@ -16,5 +16,6 @@ module.exports = {
   VideoRoomListenerJanusPlugin,
   VideoRoomPublisherJanusPlugin,
   JanusConfig,
-  JanusAdminConfig
+  JanusAdminConfig,
+  JanusRoomConfig
 }
