@@ -30,7 +30,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         throw new Error('VideoRoomPublisherJanusPlugin, could not find roomList')
       }
 
-      let foundRoom = data.list.find((room) => room.description === '' + this.roomId)
+      let foundRoom = data.list.find((room) => room.description === '' + this.room.id)
       if (foundRoom) {
         this.janusRoomId = foundRoom.room
         return this.join()
@@ -74,7 +74,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       description: '' + this.room.id,
       record: this.room.record,
       videocodec: this.room.roomCodec,
-      rec_dir: this.config.recordDirectory + this.roomId + '/',
+      rec_dir: this.config.recordDirectory + this.room.id + '/',
       publishers: 20, // a high number to surely avoid race conditions
       videoorient_ext: this.room.videoOrientExt
     }
@@ -165,13 +165,13 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   mediaState (medium, on) {
-    this.logger.debug('JANUS mediaState', this.roomId, this.display, medium, on)
+    this.logger.debug('JANUS mediaState', this.room.id, this.display, medium, on)
   }
 
   webrtcState (isReady, cause) {
     if (isReady) {
       this.emit('videochat:webrtcStream', {
-        roomId: this.roomId,
+        roomId: this.room.id,
         display: this.display,
         janusRoomId: this.janusRoomId,
         janusRoomMemberId: this.janusRoomMemberId,
