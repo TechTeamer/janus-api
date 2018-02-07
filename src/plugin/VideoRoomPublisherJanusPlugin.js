@@ -172,7 +172,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   mediaState (medium, on) {
-    // this.logger.debug('JANUS mediaState', this.roomId, this.clientType, medium, on)
+    this.logger.debug('JANUS mediaState', this.roomId, this.clientType, medium, on)
   }
 
   webrtcState (isReady, cause) {
