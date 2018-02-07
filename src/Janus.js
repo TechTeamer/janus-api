@@ -181,7 +181,7 @@ class Janus {
       return
     }
 
-    // logger.debug('JANUS GOT', json)
+    // this.logger.debug('JANUS GOT', json)
     if (json['janus'] === 'timeout' && json['session_id'] !== this.sessionId) {
       this.logger.debug('GOT timeout from another websocket') // seems like a bug in janus timeout handler :)
       return

@@ -18,6 +18,8 @@ let pack = (input, output) => {
 
 pack('./test/echo/echo.js', './test/echo/echo.bundle.js')
 pack('./test/recordplay/recordplay.js', './test/recordplay/recordplay.bundle.js')
+pack('./test/videoroom/publisher.js', './test/videoroom/publisher.bundle.js')
+pack('./test/videoroom/listener.js', './test/videoroom/listener.bundle.js')
 
 httpServer.createServer({
   showDir: true,

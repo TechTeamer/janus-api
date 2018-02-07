@@ -21,11 +21,17 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
   }
 
   join () {
-    let join = { request: 'join', room: this.janusRoomId, ptype: 'listener', feed: this.janusRemoteFeedId, private_id: this.janusRoomPrivateMemberId }
+    let join = {
+      request: 'join',
+      room: this.janusRoomId,
+      ptype: 'listener',
+      feed: this.janusRemoteFeedId,
+      private_id: this.janusRoomPrivateMemberId
+    }
 
     return new Promise((resolve, reject) => {
-      this.transaction('message', {body: join}, 'event').then((param) => {
-        let {data, json} = param || {}
+      this.transaction('message', { body: join }, 'event').then((param) => {
+        let { data, json } = param || {}
         if (!data || data.videoroom !== 'attached') {
           this.logger.error('VideoRoomListenerJanusPlugin join answer is not attached', data, json)
           throw new Error('VideoRoomListenerJanusPlugin join answer is not attached')
@@ -58,8 +64,8 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
         jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
       }
 
-      this.transaction('message', {body: ans, jsep}, 'event').then((param) => {
-        let {data, json} = param || {}
+      this.transaction('message', { body: ans, jsep }, 'event').then((param) => {
+        let { data, json } = param || {}
 
         if (!data || data.started !== 'ok') {
           this.logger.error('VideoRoomListenerJanusPlugin set answer is not ok', data, json)
@@ -79,6 +85,11 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
     }
 
     return this.transaction('trickle', { candidate })
+  }
+
+  hangup () {
+    super.hangup()
+    this.janus.destroyPlugin(this)
   }
 }
 
