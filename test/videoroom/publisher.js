@@ -23,7 +23,7 @@ let janus = new Janus(janusConfig, console)
 janus.connect().then(() => {
   console.log('Janus connected')
 
-  let publisher = new VideoRoomPublisherJanusPlugin(roomConfig, 'operator', janusConfig, console, false)
+  let publisher = new VideoRoomPublisherJanusPlugin(roomConfig, 'operator', console, false)
 
   return janus.addPlugin(publisher).then(() => {
     console.log('VideoRoomPublisherJanusPlugin added')

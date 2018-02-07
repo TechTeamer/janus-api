@@ -2,9 +2,9 @@ const JanusPlugin = require('../JanusPlugin')
 const SdpHelper = require('../SdpHelper')
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
-  constructor (roomConfig, display, janusConfig, logger, filterDirectCandidates = false) {
-    if (!roomConfig) {
-      throw new Error('unknown roomConfig')
+  constructor (config, display, logger, filterDirectCandidates = false) {
+    if (!config) {
+      throw new Error('unknown config')
     }
 
     super(logger)
@@ -17,8 +17,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     this.filterDirectCandidates = !!filterDirectCandidates
 
-    this.roomConfig = roomConfig
-    this.janusConfig = janusConfig
+    this.config = config
     this.sdpHelper = new SdpHelper(this.logger)
   }
 
@@ -30,7 +29,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         throw new Error('VideoRoomPublisherJanusPlugin, could not find roomList')
       }
 
-      let foundRoom = data.list.find((room) => room.description === '' + this.roomConfig.id)
+      let foundRoom = data.list.find((room) => room.description === '' + this.config.id)
       if (foundRoom) {
         this.janusRoomId = foundRoom.room
         return this.join()
@@ -71,19 +70,19 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   createRoom () {
     let createRoom = {
       request: 'create',
-      description: '' + this.room.id,
-      record: this.janusConfig.record,
-      videocodec: this.roomConfig.codec,
-      rec_dir: this.janusConfig.recordDirectory + this.roomConfig.id + '/',
-      publishers: this.roomConfig.publishers, // a high number to surely avoid race conditions
-      videoorient_ext: this.roomConfig.videoOrientExt
+      description: '' + this.config.id,
+      record: this.config.record,
+      videocodec: this.config.codec,
+      rec_dir: this.config.recordDirectory,
+      publishers: this.config.publishers,
+      videoorient_ext: this.config.videoOrientExt
     }
 
-    if (this.roomConfig.bitrate) {
-      createRoom.bitrate = this.roomConfig.bitrate
+    if (this.config.bitrate) {
+      createRoom.bitrate = this.config.bitrate
     }
-    if (this.roomConfig.firSeconds) {
-      createRoom.fir_freq = this.roomConfig.firSeconds
+    if (this.config.firSeconds) {
+      createRoom.fir_freq = this.config.firSeconds
     }
 
     return this.transaction('message', { body: createRoom }, 'success').then((param) => {
@@ -165,13 +164,13 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   mediaState (medium, on) {
-    this.logger.debug('JANUS mediaState', this.roomConfig.id, this.display, medium, on)
+    this.logger.debug('JANUS mediaState', this.config.id, this.display, medium, on)
   }
 
   webrtcState (isReady, cause) {
     if (isReady) {
       this.emit('videochat:webrtcStream', {
-        roomId: this.roomConfig.id,
+        roomId: this.config.id,
         display: this.display,
         janusRoomId: this.janusRoomId,
         janusRoomMemberId: this.janusRoomMemberId,
