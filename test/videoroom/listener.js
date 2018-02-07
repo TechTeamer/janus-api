@@ -81,14 +81,6 @@ function connect () {
         console.log('HANGUP')
       })
 
-      listener.on('connectRemoteMember', (data) => {
-        console.log('CONNECT REMOTE MEMBER:', data)
-      })
-
-      listener.on('disconnectRemoteMember', (data) => {
-        console.log('DISCONNECT REMOTE MEMBER:', data)
-      })
-
       return listener.join()
     })
   }).catch(err => {
