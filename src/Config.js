@@ -6,20 +6,15 @@ class JanusConfig {
       options,
       filterDirectCandidates,
       recordDirectory,
-      replayDirectory,
-      bitrate,
-      firSeconds
+      replayDirectory
     } = config
 
-    this.janus = {}
-    this.janus.url = url
-    this.janus.keepAliveIntervalMs = keepAliveIntervalMs
-    this.janus.options = options
-    this.janus.filterDirectCandidates = filterDirectCandidates
-    this.janus.recordDirectory = recordDirectory
-    this.janus.replayDirectory = replayDirectory
-    this.janus.bitrate = bitrate
-    this.janus.firSeconds = firSeconds
+    this.url = url
+    this.keepAliveIntervalMs = keepAliveIntervalMs
+    this.options = options
+    this.filterDirectCandidates = filterDirectCandidates
+    this.recordDirectory = recordDirectory
+    this.replayDirectory = replayDirectory
   }
 }
 
@@ -34,12 +29,11 @@ class JanusAdminConfig extends JanusConfig {
       sessionListIntervalMs
     } = adminConfig
 
-    this.admin = {}
-    this.admin.url = url
-    this.admin.keepAliveIntervalMs = keepAliveIntervalMs
-    this.admin.options = options
-    this.admin.secret = secret
-    this.admin.sessionListIntervalMs = sessionListIntervalMs
+    this.url = url
+    this.keepAliveIntervalMs = keepAliveIntervalMs
+    this.options = options
+    this.secret = secret
+    this.sessionListIntervalMs = sessionListIntervalMs
   }
 }
 
@@ -49,14 +43,19 @@ class JanusRoomConfig {
       id,
       codec,
       record,
-      videoOrientExt
+      videoOrientExt,
+      bitrate,
+      firSeconds,
+      publishers
     } = config
 
-    this.room = {}
-    this.room.id = id
-    this.room.codec = codec
-    this.room.record = record
-    this.room.videoOrientExt = videoOrientExt
+    this.id = id
+    this.codec = codec
+    this.record = record
+    this.videoOrientExt = videoOrientExt
+    this.bitrate = bitrate
+    this.firSeconds = firSeconds
+    this.publishers = publishers
   }
 }
 
