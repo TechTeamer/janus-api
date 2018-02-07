@@ -18,6 +18,14 @@ janus.connect().then(() => {
   return janus.addPlugin(publisher).then(() => {
     console.log('VideoRoomPublisherJanusPlugin added')
 
+    publisher.on('videochat:VideoRoomPublisherPlugin:connectRemoteMember', (data) => {
+      console.log('CONNECT REMOTE MEMBER:', data)
+    })
+
+    publisher.on('videochat:VideoRoomPublisherPlugin:disconnectRemoteMember', (data) => {
+      console.log('DISCONNECT REMOTE MEMBER:', data)
+    })
+
     return publisher.connect().then(() => {
       console.log('VideoRoomPublisherJanusPlugin connected')
 

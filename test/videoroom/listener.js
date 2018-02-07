@@ -72,6 +72,12 @@ function connect () {
           peerConnection.setLocalDescription(answer)
           listener.setAnswer(answer)
         })
+
+        listener.on('hangup', () => {
+          let videoElement = document.getElementById('video')
+          videoElement.pause()
+          videoElement.srcObject = null
+        })
       })
 
       return listener.join()

@@ -88,7 +88,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
   }
 
   hangup () {
-    this.emit('videochat:VideoRoomListenerPlugin:hangup')
+    this.emit('hangup')
   }
 
   onmessage (data, json) {
