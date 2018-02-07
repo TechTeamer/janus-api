@@ -1,5 +1,4 @@
 const JanusPlugin = require('../JanusPlugin')
-const VideoRoomListenerJanusPlugin = require('./VideoRoomListenerJanusPlugin')
 const SdpHelper = require('../SdpHelper')
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
@@ -22,8 +21,6 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.janusRoomMemberId = undefined
     this.janusRoomPrivateMemberId = undefined
     this.janusRemoteRoomMemberId = undefined
-
-    this.janusListenerPlugin = undefined
 
     this.filterDirectCandidates = !!filterDirectCandidates
 
@@ -66,11 +63,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         this.janusRoomMemberId = data.id
         this.janusRoomPrivateMemberId = data.private_id
 
-        resolve(data.publishers)
-
-        if (Array.isArray(data.publishers) && data.publishers.length) {
-          this.connectRemoteMember(data.publishers)
-        }
+        resolve(data.publishers) // TODO CRITICAL ASDF DELETE - NKLV - WHY RESOLVE PROMISE WITH PUBLISHERS???
       }).catch((err) => {
         if (err && err['error_code'] === 426) { // JANUS_VIDEOROOM_ERROR_NO_SUCH_ROOM = 426
           this.createRoom().then(resolve).catch(reject)
@@ -162,7 +155,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   onmessage (data, json) {
     // TODO data.videoroom === 'destroyed' handling
 
-    // TOOD unbublished === 'ok' handling : we are unpublished
+    // TODO unbublished === 'ok' handling : we are unpublished
 
     if (!data || !data.videoroom || !data.videoroom === 'event') {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
@@ -174,95 +167,12 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     }
 
     if (data.unpublished || data.leaving) {
-      let leavingId = data.unpublished || data.leaving
-      if (this.janusRemoteRoomMemberId && this.janusRemoteRoomMemberId === leavingId) {
-        this.disconnectRemoteMember()
-      }
+      // let leavingId = data.unpublished || data.leaving
     } else if (Array.isArray(data.publishers)) {
-      this.connectRemoteMember(data.publishers)
+      // Do nothing ;)
     } else {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
     }
-  }
-
-  disconnectRemoteMember () {
-    this.janusRemoteRoomMemberId = undefined
-
-    if (!this.janusListenerPlugin) {
-      return Promise.resolve()
-    }
-
-    return this.janus.destroyPlugin(this.janusListenerPlugin).then(() => {
-      this.janusListenerPlugin = undefined
-      this.emit('videochat:receivingPeer:stop')
-    })
-  }
-
-  connectRemoteMember (publishers) {
-    let remoteMember = publishers.find((publisher) => {
-      if (!publisher || !publisher.id || !publisher.display) {
-        // this.logger.error('VideoRoomPublisherJanusPlugin got unknown publishers', this.janusRoomId, publishers)
-        return false
-      }
-      if (!this.clientTypes.includes(publisher.display)) {
-        // this.logger.error('VideoRoomPublisherJanusPlugin got unknown publisher display name', publishers)
-        return false
-      }
-      if (publisher.display === this.clientType) {
-        // this.logger.error('VideoRoomPublisherJanusPlugin remoteMember display name is the same', publishers)
-        return false
-      }
-      return true
-    })
-
-    if (!remoteMember) {
-      this.logger.error('VideoRoomPublisherJanusPlugin no remoteMember to connect', publishers)
-      return Promise.reject(new Error('VideoRoomPublisherJanusPlugin no remoteMember to connect'))
-    }
-
-    if (this.janusRoomMemberId && this.janusRoomMemberId === remoteMember.id) { // reconnect
-      return
-    }
-
-    let promise = Promise.resolve()
-    if (this.janusRemoteRoomMemberId) {
-      promise = this.disconnectRemoteMember()
-    }
-
-    return promise.then(() => {
-      this.janusRemoteRoomMemberId = remoteMember.id
-      this.janusListenerPlugin = new VideoRoomListenerJanusPlugin(this.roomId, this.janusRoomId, this.janusRoomPrivateMemberId, remoteMember.id, this.logger, this.filterDirectCandidates)
-
-      return this.janus.addPlugin(this.janusListenerPlugin).then(() => {
-        this.janusListenerPlugin.on('jsep', (jsep) => {
-          if (this.filterDirectCandidates && jsep.sdp) {
-            jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
-          }
-
-          this.emit('videochat:receivingPeer:start', jsep)
-        })
-
-        return this.janusListenerPlugin.join()
-      })
-    })
-  }
-
-  setListenerAnswer (answer) {
-    if (!this.janusListenerPlugin) {
-      this.logger.error('VideoRoomPublisherJanusPlugin got listener answer without listener', answer)
-      return Promise.reject(new Error('VideoRoomPublisherJanusPlugin got listener answer without listener'))
-    }
-
-    return this.janusListenerPlugin.setAnswer(answer)
-  }
-
-  listenerCandidate (candidate) {
-    if (!this.janusListenerPlugin) {
-      this.logger.error('VideoRoomPublisherJanusPlugin got candidate answer without listener', candidate)
-      return // Promise.reject(new Error('VideoRoomPublisherJanusPlugin got listener answer without listener'))
-    }
-
-    return this.janusListenerPlugin.candidate(candidate)
   }
 
   mediaState (medium, on) {
@@ -284,9 +194,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   detach () {
-    return this.disconnectRemoteMember().then(() => {
-      super.detach()
-    })
+    super.detach()
   }
 }
 
