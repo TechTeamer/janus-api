@@ -166,9 +166,9 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     if (unpublished || leaving) {
       let leavingId = unpublished || leaving
-      this.emit('disconnectRemoteMember', leavingId)
+      this.emit('videochat:VideoRoomPublisherPlugin:disconnectRemoteMember', leavingId)
     } else if (Array.isArray(publishers)) {
-      this.emit('connectRemoteMember', publishers)
+      this.emit('videochat:VideoRoomPublisherPlugin:connectRemoteMember', publishers)
     } else {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
     }
