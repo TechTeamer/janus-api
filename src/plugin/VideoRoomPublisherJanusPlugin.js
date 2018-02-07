@@ -150,29 +150,29 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   onmessage (data, json) {
     // TODO data.videoroom === 'destroyed' handling
+    // TODO unpublished === 'ok' handling : we are unpublished
 
-    // TODO unbublished === 'ok' handling : we are unpublished
+    let {videoroom, room, unpublished, leaving, publishers} = data
 
+    if (!data || !videoroom || videoroom !== 'event') {
+      this.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
+      return
+    }
     if (!data || !data.videoroom || !data.videoroom === 'event') {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
       return
     }
-    if (data.room !== this.janusRoomId) {
+    if (room !== this.janusRoomId) {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown roomId', this.janusRoomId, json)
       return
     }
-
-    if (data.unpublished || data.leaving) {
-      // let leavingId = data.unpublished || data.leaving
-    } else if (Array.isArray(data.publishers)) {
-      // Do nothing ;)
-    } else {
+    if (!unpublished && !leaving && !Array.isArray(publishers)) {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
     }
   }
 
   mediaState (medium, on) {
-    this.logger.debug('JANUS mediaState', this.roomId, this.clientType, medium, on)
+    // this.logger.debug('JANUS mediaState', this.roomId, this.clientType, medium, on)
   }
 
   webrtcState (isReady, cause) {
