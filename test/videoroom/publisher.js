@@ -1,17 +1,19 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
 
 const adapter = require('webrtc-adapter')
+const { JanusConfig } = require('../../src/Config')
 const common = require('../common')
+const config = new JanusConfig(common.janus)
 
 const VideoRoomPublisherJanusPlugin = require('../../src/plugin/VideoRoomPublisherJanusPlugin')
 const Janus = require('../../src/Janus')
 
-let janus = new Janus(common.janus, console)
+let janus = new Janus(config, console)
 
 janus.connect().then(() => {
   console.log('Janus connected')
 
-  let publisher = new VideoRoomPublisherJanusPlugin(1, 'vp8', false, 'operator', common, console, false)
+  let publisher = new VideoRoomPublisherJanusPlugin(1, 'vp8', false, 'operator', config, console, false)
 
   return janus.addPlugin(publisher).then(() => {
     console.log('VideoRoomPublisherJanusPlugin added')

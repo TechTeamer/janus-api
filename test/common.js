@@ -8,7 +8,9 @@ module.exports = {
     },
     'filterDirectCandidates': true,
     'recordDirectory': '/workspace/records/',
-    'replayDirectory': '/workspace/records/converted/'
+    'replayDirectory': '/workspace/records/converted/',
+    'bitrate': 774144,
+    'firSeconds': 10
   },
   peerConnectionConfig: {
     'iceServers': [

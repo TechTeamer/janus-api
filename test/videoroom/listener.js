@@ -1,12 +1,14 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
 
 const adapter = require('webrtc-adapter')
+const { JanusConfig } = require('../../src/Config')
 const common = require('../common')
+const config = new JanusConfig(common.janus)
 
 const VideoRoomListenerJanusPlugin = require('../../src/plugin/VideoRoomListenerJanusPlugin')
 const Janus = require('../../src/Janus')
 
-let janus = new Janus(common.janus, console)
+let janus = new Janus(config, console)
 
 let params = (new URL(location.href)).searchParams
 
