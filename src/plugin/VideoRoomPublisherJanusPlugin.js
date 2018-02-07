@@ -25,7 +25,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   connect () {
-    return this.transaction('message', { body: { request: 'list' } }, 'success').then((param) => {
+    return this.transaction('message', {body: {request: 'list'}}, 'success').then((param) => {
       let {data} = param || {}
       if (!data || !Array.isArray(data.list)) {
         this.logger.error('VideoRoomPublisherJanusPlugin, could not find roomList', data)
@@ -46,7 +46,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   join () {
-    let join = { request: 'join', room: this.janusRoomId, ptype: 'publisher', display: this.display }
+    let join = {request: 'join', room: this.janusRoomId, ptype: 'publisher', display: this.display}
 
     return new Promise((resolve, reject) => {
       this.transaction('message', {body: join}, 'event').then((param) => {
@@ -93,7 +93,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       createRoom.fir_freq = this.config.firSeconds
     }
 
-    return this.transaction('message', { body: createRoom }, 'success').then((param) => {
+    return this.transaction('message', {body: createRoom}, 'success').then((param) => {
       let {data} = param || {}
       if (!data || !data.room) {
         this.logger.error('VideoRoomPublisherJanusPlugin, could not create room', data)
@@ -115,14 +115,14 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       return
     }
 
-    let configure = { request: 'configure', audio: true, video: true }
+    let configure = {request: 'configure', audio: true, video: true}
 
     let jsep = offer
     if (this.filterDirectCandidates && jsep.sdp) {
       jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
     }
 
-    return this.transaction('message', { body: configure, jsep }, 'event').then((param) => {
+    return this.transaction('message', {body: configure, jsep}, 'event').then((param) => {
       let {json} = param || {}
       if (!json.jsep) {
         throw new Error('cannot configure')
@@ -142,7 +142,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       return
     }
 
-    return this.transaction('trickle', { candidate })
+    return this.transaction('trickle', {candidate})
   }
 
   onmessage (data, json) {
@@ -163,7 +163,13 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown roomId', this.janusRoomId, json)
       return
     }
-    if (!unpublished && !leaving && !Array.isArray(publishers)) {
+
+    if (unpublished || leaving) {
+      let leavingId = unpublished || leaving
+      this.emit('disconnectRemoteMember', leavingId)
+    } else if (Array.isArray(publishers)) {
+      this.emit('connectRemoteMember', publishers)
+    } else {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
     }
   }
