@@ -2,10 +2,7 @@ const JanusPlugin = require('../JanusPlugin')
 const SdpHelper = require('../SdpHelper')
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
-  constructor (roomId, roomCodec, isMobile, clientTypes, clientType, config, logger, filterDirectCandidates = false) {
-    if (!clientTypes.includes(clientType)) {
-      throw new Error('unknown clientType', clientType)
-    }
+  constructor (roomId, roomCodec, isMobile, clientType, config, logger, filterDirectCandidates = false) {
     if (!roomId) {
       throw new Error('unknown roomId')
     }
@@ -25,7 +22,6 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.filterDirectCandidates = !!filterDirectCandidates
 
     this.config = config
-    this.clientTypes = clientTypes
     this.sdpHelper = new SdpHelper(this.logger)
   }
 
@@ -63,7 +59,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         this.janusRoomMemberId = data.id
         this.janusRoomPrivateMemberId = data.private_id
 
-        resolve(data.publishers) // TODO CRITICAL ASDF DELETE - NKLV - WHY RESOLVE PROMISE WITH PUBLISHERS???
+        resolve(data)
       }).catch((err) => {
         if (err && err['error_code'] === 426) { // JANUS_VIDEOROOM_ERROR_NO_SUCH_ROOM = 426
           this.createRoom().then(resolve).catch(reject)
