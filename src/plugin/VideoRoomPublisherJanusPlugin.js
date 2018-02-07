@@ -2,7 +2,7 @@ const JanusPlugin = require('../JanusPlugin')
 const SdpHelper = require('../SdpHelper')
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
-  constructor (roomId, roomCodec, isMobile, clientType, config, logger, filterDirectCandidates = false) {
+  constructor (roomId, roomCodec, isMobile, display, config, logger, filterDirectCandidates = false) {
     if (!roomId) {
       throw new Error('unknown roomId')
     }
@@ -11,13 +11,12 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.roomId = roomId
     this.roomCodec = roomCodec
     this.isMobile = isMobile
-    this.clientType = clientType
+    this.display = display
     this.pluginName = 'janus.plugin.videoroom'
 
     this.janusRoomId = undefined
     this.janusRoomMemberId = undefined
     this.janusRoomPrivateMemberId = undefined
-    this.janusRemoteRoomMemberId = undefined
 
     this.filterDirectCandidates = !!filterDirectCandidates
 
@@ -47,7 +46,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   join () {
-    let join = { request: 'join', room: this.janusRoomId, ptype: 'publisher', display: this.clientType }
+    let join = { request: 'join', room: this.janusRoomId, ptype: 'publisher', display: this.display }
 
     return new Promise((resolve, reject) => {
       this.transaction('message', {body: join}, 'event').then((param) => {
@@ -82,18 +81,16 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       description: '' + this.roomId,
       record: true,
       videocodec: this.roomCodec,
-      rec_dir: this.config.webrtc.server.recordDirectory + this.roomId + '/',
+      rec_dir: this.config.recordDirectory + this.roomId + '/',
       publishers: 20, // a high number to surely avoid race conditions
       videoorient_ext: videoorientExt
     }
 
-    if (this.config.webrtc.performance) {
-      if (this.config.webrtc.performance.bitrate) {
-        createRoom.bitrate = this.config.webrtc.performance.bitrate
-      }
-      if (this.config.webrtc.performance.firSeconds) {
-        createRoom.fir_freq = this.config.webrtc.performance.firSeconds
-      }
+    if (this.config.bitrate) {
+      createRoom.bitrate = this.config.bitrate
+    }
+    if (this.config.firSeconds) {
+      createRoom.fir_freq = this.config.firSeconds
     }
 
     return this.transaction('message', { body: createRoom }, 'success').then((param) => {
@@ -172,14 +169,14 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   mediaState (medium, on) {
-    this.logger.debug('JANUS mediaState', this.roomId, this.clientType, medium, on)
+    this.logger.debug('JANUS mediaState', this.roomId, this.display, medium, on)
   }
 
   webrtcState (isReady, cause) {
     if (isReady) {
       this.emit('videochat:webrtcStream', {
         roomId: this.roomId,
-        clientType: this.clientType,
+        display: this.display,
         janusRoomId: this.janusRoomId,
         janusRoomMemberId: this.janusRoomMemberId,
         janusRoomPrivateMemberId: this.janusRoomPrivateMemberId,

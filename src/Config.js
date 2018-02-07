@@ -6,7 +6,9 @@ class JanusConfig {
       options,
       filterDirectCandidates,
       recordDirectory,
-      replayDirectory
+      replayDirectory,
+      bitrate,
+      firSeconds
     } = config
 
     this.janus = {}
@@ -16,6 +18,8 @@ class JanusConfig {
     this.janus.filterDirectCandidates = filterDirectCandidates
     this.janus.recordDirectory = recordDirectory
     this.janus.replayDirectory = replayDirectory
+    this.janus.bitrate = bitrate
+    this.janus.firSeconds = firSeconds
   }
 }
 
