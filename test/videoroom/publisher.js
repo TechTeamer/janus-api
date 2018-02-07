@@ -11,7 +11,8 @@ const roomConfig = new JanusRoomConfig({
   videoOrientExt: false,
   bitrate: common.janus.bitrate,
   firSeconds: common.janus.firSeconds,
-  publishers: common.janus.publishers
+  publishers: common.janus.publishers,
+  recordDirectory: common.janus.recordDirectory + '1/' // roomId
 })
 
 const VideoRoomPublisherJanusPlugin = require('../../src/plugin/VideoRoomPublisherJanusPlugin')

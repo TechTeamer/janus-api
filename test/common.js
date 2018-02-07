@@ -8,7 +8,6 @@ module.exports = {
     },
     'filterDirectCandidates': true,
     'recordDirectory': '/workspace/records/',
-    'replayDirectory': '/workspace/records/converted/',
     'bitrate': 774144,
     'firSeconds': 10,
     'publishers': 20

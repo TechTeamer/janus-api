@@ -3,18 +3,12 @@ class JanusConfig {
     let {
       url,
       keepAliveIntervalMs,
-      options,
-      filterDirectCandidates,
-      recordDirectory,
-      replayDirectory
+      options
     } = config
 
     this.url = url
     this.keepAliveIntervalMs = keepAliveIntervalMs
     this.options = options
-    this.filterDirectCandidates = filterDirectCandidates
-    this.recordDirectory = recordDirectory
-    this.replayDirectory = replayDirectory
   }
 }
 
@@ -22,16 +16,10 @@ class JanusAdminConfig extends JanusConfig {
   constructor (janusConfig, adminConfig) {
     super(janusConfig)
     let {
-      url,
-      keepAliveIntervalMs,
-      options,
       secret,
       sessionListIntervalMs
     } = adminConfig
 
-    this.url = url
-    this.keepAliveIntervalMs = keepAliveIntervalMs
-    this.options = options
     this.secret = secret
     this.sessionListIntervalMs = sessionListIntervalMs
   }
@@ -46,7 +34,8 @@ class JanusRoomConfig {
       videoOrientExt,
       bitrate,
       firSeconds,
-      publishers
+      publishers,
+      recordDirectory
     } = config
 
     this.id = id
@@ -56,6 +45,7 @@ class JanusRoomConfig {
     this.bitrate = bitrate
     this.firSeconds = firSeconds
     this.publishers = publishers
+    this.recordDirectory = recordDirectory
   }
 }
 
