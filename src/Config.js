@@ -13,12 +13,12 @@ class JanusConfig {
 }
 
 class JanusAdminConfig extends JanusConfig {
-  constructor (janusConfig, adminConfig) {
-    super(janusConfig)
+  constructor (config) {
+    super(config)
     let {
       secret,
       sessionListIntervalMs
-    } = adminConfig
+    } = config
 
     this.secret = secret
     this.sessionListIntervalMs = sessionListIntervalMs
