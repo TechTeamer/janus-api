@@ -10,7 +10,8 @@ module.exports = {
     'recordDirectory': '/workspace/records/',
     'replayDirectory': '/workspace/records/converted/',
     'bitrate': 774144,
-    'firSeconds': 10
+    'firSeconds': 10,
+    'publishers': 20
   },
   peerConnectionConfig: {
     'iceServers': [

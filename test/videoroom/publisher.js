@@ -3,23 +3,26 @@
 const adapter = require('webrtc-adapter')
 const { JanusConfig, JanusRoomConfig } = require('../../src/Config')
 const common = require('../common')
-const config = new JanusConfig(common.janus)
+const janusConfig = new JanusConfig(common.janus)
 const roomConfig = new JanusRoomConfig({
   id: 1,
   codec: 'vp8,vp9,h264',
   record: true,
-  videoOrientExt: false
+  videoOrientExt: false,
+  bitrate: common.janus.bitrate,
+  firSeconds: common.janus.firSeconds,
+  publishers: common.janus.publishers
 })
 
 const VideoRoomPublisherJanusPlugin = require('../../src/plugin/VideoRoomPublisherJanusPlugin')
 const Janus = require('../../src/Janus')
 
-let janus = new Janus(config, console)
+let janus = new Janus(janusConfig, console)
 
 janus.connect().then(() => {
   console.log('Janus connected')
 
-  let publisher = new VideoRoomPublisherJanusPlugin(roomConfig, 'operator', config, console, false)
+  let publisher = new VideoRoomPublisherJanusPlugin(roomConfig, 'operator', janusConfig, console, false)
 
   return janus.addPlugin(publisher).then(() => {
     console.log('VideoRoomPublisherJanusPlugin added')

@@ -12,7 +12,7 @@ class Janus {
     this.transactions = {}
     this.pluginHandles = {}
 
-    this.config = config.janus
+    this.config = config
     this.protocol = 'janus-protocol'
     this.sendCreate = true
   }
