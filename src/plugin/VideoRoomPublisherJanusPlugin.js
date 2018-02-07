@@ -59,7 +59,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
         this.janusRoomMemberId = data.id
         this.janusRoomPrivateMemberId = data.private_id
 
-        resolve(data)
+        resolve(data.publishers)
       }).catch((err) => {
         if (err && err['error_code'] === 426) { // JANUS_VIDEOROOM_ERROR_NO_SUCH_ROOM = 426
           this.createRoom().then(resolve).catch(reject)
