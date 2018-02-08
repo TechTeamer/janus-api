@@ -103,7 +103,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   configure (offer) {
     if (!this.janusRoomMemberId) {
-      this.logger('VideoRoomPublisherJanusPlugin, cannot configure without janusRoomMemberId')
+      this.logger.error('VideoRoomPublisherJanusPlugin, cannot configure without janusRoomMemberId')
       return
     }
 
