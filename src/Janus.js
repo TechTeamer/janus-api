@@ -115,12 +115,6 @@ class Janus {
         return
       }
 
-      let request = Object.assign({}, payload, {
-        janus: type,
-        session_id: (payload && parseInt(payload.session_id, 10)) || this.sessionId,
-        transaction: transactionId
-      })
-
       let resolveTimeout = (...arguments) => {
         clearTimeout(timeout)
         resolve(...arguments)
@@ -130,6 +124,12 @@ class Janus {
         clearTimeout(timeout)
         reject(...arguments)
       }
+
+      let request = Object.assign({}, payload, {
+        janus: type,
+        session_id: (payload && parseInt(payload.session_id, 10)) || this.sessionId,
+        transaction: transactionId
+      })
 
       if (timeoutMs) {
         this.transactions[request.transaction] = {resolve: resolveTimeout, reject: rejectTimeout, replyType}
