@@ -154,7 +154,12 @@ class Janus {
       return Promise.resolve()
     }
 
-    return this.transaction('destroy', {}, 'success', 5000).then(() => { this.cleanup() })
+    return this.transaction('destroy', {}, 'success', 5000).then(() => {
+      this.cleanup()
+    }).catch(err => {
+      this.logger.error(err)
+      this.cleanup()
+    })
   }
 
   destroyPlugin (plugin) {
@@ -174,7 +179,13 @@ class Janus {
         plugin.detach()
 
         resolve()
-      }).catch(reject)
+      }).catch(err => {
+        this.logger.error(err)
+        delete this.pluginHandles[plugin.pluginName]
+        plugin.detach()
+
+        reject(err)
+      })
     })
   }
 
