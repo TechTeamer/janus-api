@@ -1,6 +1,10 @@
+2.1.1
+- fix JanusAdmin config
+- force cleanup after destroy
+
 2.1.0
 - improve cleanup
-- add optional transation timeout
+- add optional transaction timeout
 
 2.0.0
 - Split VideoRoom Listener/Publisher
