@@ -31,7 +31,7 @@ class Janus {
         reject(err)
       })
 
-      this.ws.addEventListener('close', this.cleanup.bind(this))
+      this.ws.addEventListener('close', () => { this.cleanup() })
 
       this.ws.addEventListener('open', () => {
         if (!this.sendCreate) {
@@ -66,8 +66,8 @@ class Janus {
         this.ws.send(JSON.stringify(request))
       })
 
-      this.ws.addEventListener('message', this.onMessage.bind(this))
-      this.ws.addEventListener('close', this.onClose.bind(this))
+      this.ws.addEventListener('message', () => { this.onMessage() })
+      this.ws.addEventListener('close', () => { this.onClose() })
     })
   }
 
@@ -103,9 +103,8 @@ class Janus {
     let transactionId = uuid()
 
     return new Promise((resolve, reject) => {
-      let timeout
       if (timeoutMs) {
-        timeout = setTimeout(() => {
+        setTimeout(() => {
           reject(new Error('Transaction timed out after ' + timeoutMs + ' ms'))
         }, timeoutMs)
       }
@@ -115,27 +114,13 @@ class Janus {
         return
       }
 
-      let resolveTimeout = (...arguments) => {
-        clearTimeout(timeout)
-        resolve(...arguments)
-      }
-
-      let rejectTimeout = (...arguments) => {
-        clearTimeout(timeout)
-        reject(...arguments)
-      }
-
       let request = Object.assign({}, payload, {
         janus: type,
         session_id: (payload && parseInt(payload.session_id, 10)) || this.sessionId,
         transaction: transactionId
       })
 
-      if (timeoutMs) {
-        this.transactions[request.transaction] = {resolve: resolveTimeout, reject: rejectTimeout, replyType}
-      } else {
-        this.transactions[request.transaction] = {resolve, reject, replyType}
-      }
+      this.transactions[request.transaction] = {resolve, reject, replyType}
       this.ws.send(JSON.stringify(request))
     })
   }
@@ -169,7 +154,7 @@ class Janus {
       return Promise.resolve()
     }
 
-    return this.transaction('destroy', {}, 'success').then(this.cleanup.bind(this))
+    return this.transaction('destroy', {}, 'success').then(() => { this.cleanup() })
   }
 
   destroyPlugin (plugin) {
@@ -385,11 +370,11 @@ class Janus {
     }
 
     if (isScheduled) {
-      setTimeout(this.keepAlive.bind(this), this.config.keepAliveIntervalMs)
+      setTimeout(() => { this.keepAlive() }, this.config.keepAliveIntervalMs)
     } else {
       // logger.debug('Sending Janus keepalive')
       this.transaction('keepalive').then(() => {
-        setTimeout(this.keepAlive.bind(this), this.config.keepAliveIntervalMs)
+        setTimeout(() => { this.keepAlive() }, this.config.keepAliveIntervalMs)
       })
     }
   }
@@ -416,14 +401,15 @@ class Janus {
       if (this.ws.readyState === WebSocket.OPEN) {
         this.ws.close()
       }
-      this.ws = undefined
-      this.isConnected = false
     }
+    this.ws = undefined
+    this.isConnected = false
   }
 
   _cleanupPlugins () {
     Object.keys(this.pluginHandles).forEach((plugin) => {
-      this.destroyPlugin(this.pluginHandles[plugin])
+      plugin.detach()
+      delete this.pluginHandles[plugin]
     })
   }
 
