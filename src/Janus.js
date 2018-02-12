@@ -408,7 +408,7 @@ class Janus {
 
   _cleanupPlugins () {
     Object.keys(this.pluginHandles).forEach((plugin) => {
-      plugin.detach()
+      this.pluginHandles[plugin].detach()
       delete this.pluginHandles[plugin]
     })
   }
