@@ -65,6 +65,7 @@ class JanusPlugin extends EventEmitter {
 
   detach () {
     this.removeAllListeners()
+    this.janus = null
   }
 }
 
