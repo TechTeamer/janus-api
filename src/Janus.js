@@ -66,7 +66,7 @@ class Janus {
         this.ws.send(JSON.stringify(request))
       })
 
-      this.ws.addEventListener('message', () => { this.onMessage() })
+      this.ws.addEventListener('message', (event) => { this.onMessage(event) })
       this.ws.addEventListener('close', () => { this.onClose() })
     })
   }
