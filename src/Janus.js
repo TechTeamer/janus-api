@@ -31,7 +31,7 @@ class Janus {
         reject(err)
       })
 
-      this.ws.addEventListener('close', this.cleanupWebSocket.bind(this))
+      this.ws.addEventListener('close', () => { this.cleanup() })
 
       this.ws.addEventListener('open', () => {
         if (!this.sendCreate) {
@@ -66,8 +66,8 @@ class Janus {
         this.ws.send(JSON.stringify(request))
       })
 
-      this.ws.addEventListener('message', this.onMessage.bind(this))
-      this.ws.addEventListener('close', this.onClose.bind(this))
+      this.ws.addEventListener('message', (event) => { this.onMessage(event) })
+      this.ws.addEventListener('close', () => { this.onClose() })
     })
   }
 
@@ -96,13 +96,19 @@ class Janus {
     })
   }
 
-  transaction (type, payload, replyType) {
+  transaction (type, payload, replyType, timeoutMs) {
     if (!replyType) {
       replyType = 'ack'
     }
     let transactionId = uuid()
 
     return new Promise((resolve, reject) => {
+      if (timeoutMs) {
+        setTimeout(() => {
+          reject(new Error('Transaction timed out after ' + timeoutMs + ' ms'))
+        }, timeoutMs)
+      }
+
       if (!this.isConnected) {
         reject(new Error('Janus is not connected'))
         return
@@ -148,7 +154,7 @@ class Janus {
       return Promise.resolve()
     }
 
-    return this.transaction('destroy', {}, 'success').then(this.cleanupWebSocket.bind(this))
+    return this.transaction('destroy', {}, 'success').then(() => { this.cleanup() })
   }
 
   destroyPlugin (plugin) {
@@ -163,7 +169,7 @@ class Janus {
         return
       }
 
-      this.transaction('detach', {plugin: plugin.pluginName, handle_id: plugin.janusHandleId}, 'success').then(() => {
+      this.transaction('detach', {plugin: plugin.pluginName, handle_id: plugin.janusHandleId}, 'success', 5000).then(() => {
         delete this.pluginHandles[plugin.pluginName]
         plugin.detach()
 
@@ -364,11 +370,11 @@ class Janus {
     }
 
     if (isScheduled) {
-      setTimeout(this.keepAlive.bind(this), this.config.keepAliveIntervalMs)
+      setTimeout(() => { this.keepAlive() }, this.config.keepAliveIntervalMs)
     } else {
       // logger.debug('Sending Janus keepalive')
       this.transaction('keepalive').then(() => {
-        setTimeout(this.keepAlive.bind(this), this.config.keepAliveIntervalMs)
+        setTimeout(() => { this.keepAlive() }, this.config.keepAliveIntervalMs)
       })
     }
   }
@@ -383,20 +389,32 @@ class Janus {
     }
   }
 
-  cleanupWebSocket () {
-    if (!this.ws) {
-      return
-    }
+  cleanup () {
+    this._cleanupPlugins()
+    this._cleanupWebSocket()
+    this._cleanupTransactions()
+  }
 
-    this.pluginHandles = {}
-
-    this.ws.removeAllListeners()
-    if (this.ws.readyState === WebSocket.OPEN) {
-      this.ws.close()
+  _cleanupWebSocket () {
+    if (this.ws) {
+      this.ws.removeAllListeners()
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.close()
+      }
     }
     this.ws = undefined
     this.isConnected = false
+  }
 
+  _cleanupPlugins () {
+    Object.keys(this.pluginHandles).forEach((pluginId) => {
+      let plugin = this.pluginHandles[pluginId]
+      delete this.pluginHandles[pluginId]
+      plugin.detach()
+    })
+  }
+
+  _cleanupTransactions () {
     Object.keys(this.transactions).forEach((transaction) => {
       if (transaction.reject) {
         transaction.reject()
