@@ -31,7 +31,7 @@ class Janus {
         reject(err)
       })
 
-      this.ws.addEventListener('close', this.cleanupWebSocket.bind(this))
+      this.ws.addEventListener('close', this.cleanup.bind(this))
 
       this.ws.addEventListener('open', () => {
         if (!this.sendCreate) {
@@ -169,7 +169,7 @@ class Janus {
       return Promise.resolve()
     }
 
-    return this.transaction('destroy', {}, 'success').then(this.cleanupWebSocket.bind(this))
+    return this.transaction('destroy', {}, 'success').then(this.cleanup.bind(this))
   }
 
   destroyPlugin (plugin) {
@@ -184,7 +184,7 @@ class Janus {
         return
       }
 
-      this.transaction('detach', {plugin: plugin.pluginName, handle_id: plugin.janusHandleId}, 'success').then(() => {
+      this.transaction('detach', {plugin: plugin.pluginName, handle_id: plugin.janusHandleId}, 'success', 5000).then(() => {
         delete this.pluginHandles[plugin.pluginName]
         plugin.detach()
 
@@ -404,20 +404,30 @@ class Janus {
     }
   }
 
-  cleanupWebSocket () {
-    if (!this.ws) {
-      return
+  cleanup () {
+    this._cleanupPlugins()
+    this._cleanupWebSocket()
+    this._cleanupTransactions()
+  }
+
+  _cleanupWebSocket () {
+    if (this.ws) {
+      this.ws.removeAllListeners()
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.close()
+      }
+      this.ws = undefined
+      this.isConnected = false
     }
+  }
 
-    this.pluginHandles = {}
+  _cleanupPlugins () {
+    Object.keys(this.pluginHandles).forEach((plugin) => {
+      this.destroyPlugin(this.pluginHandles[plugin])
+    })
+  }
 
-    this.ws.removeAllListeners()
-    if (this.ws.readyState === WebSocket.OPEN) {
-      this.ws.close()
-    }
-    this.ws = undefined
-    this.isConnected = false
-
+  _cleanupTransactions () {
     Object.keys(this.transactions).forEach((transaction) => {
       if (transaction.reject) {
         transaction.reject()
