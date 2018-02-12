@@ -1,3 +1,17 @@
+2.1.0
+- improve cleanup
+- add optional transation timeout
+
+2.0.0
+- Split VideoRoom Listener/Publisher
+- Added VideoRoom Publisher/Listener Test
+
+1.1.2
+- npm publish fix
+
+1.1.1
+- fix for module export
+
 1.1.0
 - browser compatible
 - RecordPlayJanusPlugin added
