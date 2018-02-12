@@ -7,8 +7,8 @@ class JanusAdmin extends Janus {
    * @param logger
    */
   constructor (config, logger) {
-    super(config.janus, logger)
-    this.config = config.admin
+    super(config, logger)
+    this.config = config
     this.protocol = 'janus-admin-protocol'
     this.sendCreate = false
   }
