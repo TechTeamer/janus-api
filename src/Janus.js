@@ -96,13 +96,20 @@ class Janus {
     })
   }
 
-  transaction (type, payload, replyType) {
+  transaction (type, payload, replyType, timeoutMs) {
     if (!replyType) {
       replyType = 'ack'
     }
     let transactionId = uuid()
 
     return new Promise((resolve, reject) => {
+      let timeout
+      if (timeoutMs) {
+        timeout = setTimeout(() => {
+          reject(new Error('Transaction timed out after ' + timeoutMs + ' ms'))
+        }, timeoutMs)
+      }
+
       if (!this.isConnected) {
         reject(new Error('Janus is not connected'))
         return
@@ -114,7 +121,21 @@ class Janus {
         transaction: transactionId
       })
 
-      this.transactions[request.transaction] = {resolve, reject, replyType}
+      let resolveTimeout = (...arguments) => {
+        clearTimeout(timeout)
+        resolve(...arguments)
+      }
+
+      let rejectTimeout = (...arguments) => {
+        clearTimeout(timeout)
+        reject(...arguments)
+      }
+
+      if (timeoutMs) {
+        this.transactions[request.transaction] = {resolve: resolveTimeout, reject: rejectTimeout, replyType}
+      } else {
+        this.transactions[request.transaction] = {resolve, reject, replyType}
+      }
       this.ws.send(JSON.stringify(request))
     })
   }
