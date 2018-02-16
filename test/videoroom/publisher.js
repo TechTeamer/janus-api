@@ -38,6 +38,13 @@ janus.connect().then(() => {
       console.log('publishersUpdated', data)
     })
 
+    document.getElementById('bitrate-button').addEventListener('click', () => {
+      let bitrate = parseInt(document.getElementById('bitrate').value, 10)
+      publisher.setRoomBitrate(bitrate).then((data) => {
+        console.log('bitrate set to ' + bitrate)
+      })
+    })
+
     return publisher.connect().then(() => {
       console.log('VideoRoomPublisherJanusPlugin connected')
 
@@ -66,10 +73,6 @@ janus.connect().then(() => {
 
         peerConnection.addStream(stream)
 
-        let videoElement = document.getElementById('video')
-        videoElement.srcObject = stream
-        videoElement.play()
-
         return peerConnection.createOffer({}).then((offer) => {
           console.log('got offer', offer)
 
@@ -80,6 +83,10 @@ janus.connect().then(() => {
               console.log('ANSWER', jsep)
               peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => {
                 console.log('remoteDescription set')
+
+                let videoElement = document.getElementById('video')
+                videoElement.srcObject = stream
+                videoElement.play()
               })
             })
           })

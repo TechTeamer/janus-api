@@ -34,7 +34,21 @@
     <a id="start" target="_blank" class="btn btn-primary btn-sm btn-block">Open listener</a>
     <hr>
 
-    <video id="video"></video>
+    <div class="form-group row">
+        <label for="janusRoomMemberId" class="col-sm-4 col-form-label col-form-label-sm">Room Bitrate:</label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control form-control-sm" id="bitrate">
+        </div>
+    </div>
+    <button id="bitrate-button" class="btn btn-primary btn-sm btn-block">Set Room Bitrate</button>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-12">
+            <video id="video"></video>
+        </div>
+    </div>
 </main><!-- /.container -->
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

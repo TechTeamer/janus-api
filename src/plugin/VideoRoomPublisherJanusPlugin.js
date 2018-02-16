@@ -21,6 +21,19 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.sdpHelper = new SdpHelper(this.logger)
   }
 
+  setRoomBitrate (bitrate) {
+    let body = {
+      request: 'edit',
+      room: this.janusRoomId,
+      new_bitrate: bitrate
+    }
+
+    return this.transaction('message', { body }, 'success').catch((err) => {
+      this.logger.logger('VideoRoomPublisherJanusPlugin, cannot stop RTP forward', err)
+      throw err
+    })
+  }
+
   connect () {
     return this.transaction('message', { body: { request: 'list' } }, 'success').then((param) => {
       let { data } = param || {}
@@ -43,10 +56,10 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   join () {
-    let join = { request: 'join', room: this.janusRoomId, ptype: 'publisher', display: this.display }
+    let body = { request: 'join', room: this.janusRoomId, ptype: 'publisher', display: this.display }
 
     return new Promise((resolve, reject) => {
-      this.transaction('message', { body: join }, 'event').then((param) => {
+      this.transaction('message', { body }, 'event').then((param) => {
         let { data } = param || {}
         if (!data || !data.id || !data.private_id || !data.publishers) {
           this.logger.error('VideoRoomPublisherJanusPlugin, could not join room', data)
@@ -68,7 +81,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   createRoom () {
-    let createRoom = {
+    let body = {
       request: 'create',
       description: '' + this.config.id,
       record: this.config.record,
@@ -79,13 +92,13 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     }
 
     if (this.config.bitrate) {
-      createRoom.bitrate = this.config.bitrate
+      body.bitrate = this.config.bitrate
     }
     if (this.config.firSeconds) {
-      createRoom.fir_freq = this.config.firSeconds
+      body.fir_freq = this.config.firSeconds
     }
 
-    return this.transaction('message', { body: createRoom }, 'success').then((param) => {
+    return this.transaction('message', { body }, 'success').then((param) => {
       let { data } = param || {}
       if (!data || !data.room) {
         this.logger.error('VideoRoomPublisherJanusPlugin, could not create room', data)
@@ -107,14 +120,14 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       return
     }
 
-    let configure = { request: 'configure', audio: true, video: true }
+    let body = { request: 'configure', audio: true, video: true }
 
     let jsep = offer
     if (this.filterDirectCandidates && jsep.sdp) {
       jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
     }
 
-    return this.transaction('message', { body: configure, jsep }, 'event').then((param) => {
+    return this.transaction('message', { body, jsep }, 'event').then((param) => {
       let { json } = param || {}
       if (!json.jsep) {
         throw new Error('cannot configure')
