@@ -19,6 +19,10 @@ class JanusPlugin extends EventEmitter {
   transaction (message, additionalFields, replyType) {
     let payload = Object.assign({}, additionalFields, { handle_id: this.janusHandleId })
 
+    if (!this.janus) {
+      return Promise.reject(new Error('JanusPlugin is not connected'))
+    }
+
     return this.janus.transaction(message, payload, replyType)
   }
 
