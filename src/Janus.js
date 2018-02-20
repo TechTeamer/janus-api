@@ -178,7 +178,12 @@ class Janus {
         plugin.detach()
 
         resolve()
-      }).catch(reject)
+      }).catch((err) => {
+        delete this.pluginHandles[plugin.pluginName]
+        plugin.detach()
+
+        reject(err)
+      })
     })
   }
 
