@@ -1,3 +1,6 @@
+2.1.2
+- force detach plugins
+
 2.1.1
 - fix JanusAdmin config
 - force cleanup after destroy
