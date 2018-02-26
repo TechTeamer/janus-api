@@ -1,6 +1,6 @@
 {
   "name": "@techteamer/janus-api",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Janus WebRTC-Gateway API",
   "main": "index.js",
   "scripts": {
@@ -29,7 +29,7 @@
   "devDependencies": {
     "browserify": "^16.0.0",
     "eslint": "^4.17.0",
-    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^6.0.0",
     "eslint-plugin-promise": "^3.6.0",

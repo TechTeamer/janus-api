@@ -1,3 +1,6 @@
+2.2.0
+- RTP forward added to VideoRoomPublisher
+
 2.1.2
 - force detach plugins
 
