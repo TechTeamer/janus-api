@@ -1,9 +1,9 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
-
 const adapter = require('webrtc-adapter')
 const { JanusConfig, JanusRoomConfig } = require('../../src/Config')
 const common = require('../common')
 const janusConfig = new JanusConfig(common.janus)
+
 const roomConfig = new JanusRoomConfig({
   id: 1,
   codec: 'vp8,vp9,h264',
@@ -41,8 +41,21 @@ janus.connect().then(() => {
     document.getElementById('bitrate-button').addEventListener('click', () => {
       let bitrate = parseInt(document.getElementById('bitrate').value, 10)
       publisher.setRoomBitrate(bitrate).then((data) => {
-        console.log('bitrate set to ' + bitrate)
+        console.log('bitrate set to ' + bitrate, data)
       })
+    })
+
+    document.getElementById('start-rtp-button').addEventListener('click', () => {
+      let host = document.getElementById('rtp-host').value
+      let videoPort = parseInt(document.getElementById('rtp-video-port').value, 10)
+      let audioPort = parseInt(document.getElementById('rtp-audio-port').value, 10)
+      publisher.startRTPForward(host, videoPort, audioPort).then((data) => {
+        console.log('RTP forwarded', data)
+      })
+    })
+
+    document.getElementById('stop-rtp-button').addEventListener('click', () => {
+      publisher.stopRTPForward()
     })
 
     return publisher.connect().then(() => {

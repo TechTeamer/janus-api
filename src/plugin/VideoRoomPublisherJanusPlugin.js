@@ -1,5 +1,6 @@
 const JanusPlugin = require('../JanusPlugin')
 const SdpHelper = require('../SdpHelper')
+const SdpUtils = require('sdp')
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   constructor (config, display, logger, filterDirectCandidates = false) {
@@ -19,6 +20,114 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     this.config = config
     this.sdpHelper = new SdpHelper(this.logger)
+
+    this.offerSdp = undefined
+    this.answerSdp = undefined
+
+    this.rtpForwardVideoStreamId = undefined
+    this.rtpForwardAudioStreamId = undefined
+    this.rtpForwardDataStreamId = undefined
+  }
+
+  /**
+   * Usage: ffmpeg -analyzeduration 300M -probesize 300M -protocol_whitelist file,udp,rtp -i sdp.file  -c:v h264 -c:a aac -ar 16k -ac 1 -g 50 -max_muxing_queue_size 9999 -preset ultrafast -tune zerolatency  -f flv rtmp://127.0.0.1:1935/mytv/stream
+   */
+  startRTPForward (host, videoPortNumber, audioPortNumber) {
+    let body = {
+      request: 'rtp_forward',
+      room: this.janusRoomId,
+      publisher_id: this.janusRoomMemberId,
+      host: host
+    }
+
+    if (videoPortNumber) {
+      body.video_port = videoPortNumber
+    }
+    if (audioPortNumber) {
+      body.audio_port = audioPortNumber
+    }
+
+    return this.transaction('message', { body }, 'success').then(({data, json}) => {
+      if (data && data.rtp_stream && data.rtp_stream.video_stream_id) {
+        this.rtpForwardVideoStreamId = data.rtp_stream.video_stream_id
+      }
+      if (data && data.rtp_stream && data.rtp_stream.audio_stream_id) {
+        this.rtpForwardAudioStreamId = data.rtp_stream.audio_stream_id
+      }
+      if (data && data.rtp_stream && data.rtp_stream.data_stream_id) {
+        this.rtpForwardDataStreamId = data.rtp_stream.data_stream_id
+      }
+
+      let rtpSdp = 'v=0\n' +
+        `o=- 0 0 IN IP4 ${host}\n` +
+        `s=janus-api:${this.janusRoomId}.${this.janusRoomMemberId}\n` +
+        `c=IN IP4 ${host}\n` +
+        't=0 0\n' +
+        'a=tool:janus-api\n'
+
+      SdpUtils.splitSections(this.answerSdp).forEach((section, index) => {
+        if (index === 0) {
+          return // session part
+        }
+
+        let mid = SdpUtils.getMid(section)
+        let rtp = SdpUtils.parseRtpParameters(section)
+
+        let codec = rtp.codecs[0]
+        if (!codec) {
+          return
+        }
+
+        if (mid === 'video' && videoPortNumber) {
+          rtpSdp +=
+            `m=video ${videoPortNumber} RTP/AVP ${codec.payloadType}\n` +
+            `a=rtpmap:${codec.payloadType} ${codec.name}/${codec.clockRate}\n` +
+            `a=fmtp:11 packetization-mode=1\n` +
+            `a=rtcp-mux\n`
+        }
+        if (mid === 'audio' && audioPortNumber) {
+          rtpSdp +=
+            `m=audio ${audioPortNumber} RTP/AVP ${codec.payloadType}\n` +
+            `a=rtpmap:${codec.payloadType} ${codec.name}/${codec.clockRate}\n` +
+            `a=fmtp:11 packetization-mode=1\n` +
+            `a=rtcp-mux\n`
+        }
+      })
+
+      return rtpSdp
+    }).catch((err) => {
+      this.logger.error('VideoRoomPublisherJanusPlugin, cannot RTP forward', err)
+      throw err
+    })
+  }
+
+  stopRTPForward () {
+    let ret = []
+    if (this.rtpForwardVideoStreamId) {
+      ret.push(this.stopRTPForwardStream(this.rtpForwardVideoStreamId))
+    }
+    if (this.rtpForwardAudioStreamId) {
+      ret.push(this.stopRTPForwardStream(this.rtpForwardAudioStreamId))
+    }
+    if (this.rtpForwardDataStreamId) {
+      ret.push(this.stopRTPForwardStream(this.rtpForwardDataStreamId))
+    }
+
+    return Promise.all(ret)
+  }
+
+  stopRTPForwardStream (streamId) {
+    let body = {
+      request: 'stop_rtp_forward',
+      room: this.janusRoomId,
+      publisher_id: this.janusRoomMemberId,
+      stream_id: streamId
+    }
+
+    return this.transaction('message', { body }, 'success').catch((err) => {
+      this.logger.logger('VideoRoomPublisherJanusPlugin, cannot stop RTP forward', err)
+      throw err
+    })
   }
 
   setRoomBitrate (bitrate) {
@@ -29,7 +138,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     }
 
     return this.transaction('message', { body }, 'success').catch((err) => {
-      this.logger.logger('VideoRoomPublisherJanusPlugin, cannot stop RTP forward', err)
+      this.logger.logger('VideoRoomPublisherJanusPlugin, cannot set room bitrate', err)
       throw err
     })
   }
@@ -127,6 +236,8 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
     }
 
+    this.offerSdp = jsep.sdp
+
     return this.transaction('message', { body, jsep }, 'event').then((param) => {
       let { json } = param || {}
       if (!json.jsep) {
@@ -137,6 +248,8 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       if (this.filterDirectCandidates && jsep.sdp) {
         jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
       }
+
+      this.answerSdp = jsep.sdp
 
       return jsep
     })

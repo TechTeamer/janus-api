@@ -56,7 +56,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
   }
 
   setAnswer (answer) {
-    let ans = { request: 'start', room: this.janusRoomId }
+    let body = { request: 'start', room: this.janusRoomId }
 
     return new Promise((resolve, reject) => {
       let jsep = answer
@@ -64,7 +64,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
         jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
       }
 
-      this.transaction('message', { body: ans, jsep }, 'event').then((param) => {
+      this.transaction('message', { body, jsep }, 'event').then((param) => {
         let { data, json } = param || {}
 
         if (!data || data.started !== 'ok') {
