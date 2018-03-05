@@ -11,7 +11,7 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   /**
-   * Type param can be: rtp, rtsp, live ondemand
+   * Type param can be: rtp, rtsp, live, ondemand
    *
    * Common parameters:
    *   - id: positive integer, optional, random will be used if not present
@@ -64,16 +64,55 @@ class StreamingJanusPlugin extends JanusPlugin {
     })
   }
 
-  watch () {
+  watch (id) {
+    let body = { request: 'watch', id }
 
+    return new Promise((resolve, reject) => {
+      this.transaction('message', {body}, 'event').then((param) => {
+        let { data, json } = param || {}
+
+        if (!data || data.streaming !== 'event') {
+          this.logger.error('StreamingJanusPlugin watch error ', data, json)
+          throw new Error('StreamingJanusPlugin watch error')
+        }
+        if (!json.jsep) {
+          this.logger.error('StreamingJanusPlugin watch answer does not contains jsep', data, json)
+          throw new Error('StreamingJanusPlugin watch answer does not contains jsep')
+        }
+
+        let jsep = json.jsep
+        if (this.filterDirectCandidates && jsep.sdp) {
+          jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
+        }
+
+        this.emit('jsep', jsep)
+        resolve(jsep)
+      }).catch((err) => {
+        this.logger.error('StreamingJanusPlugin, cannot watch stream', err)
+        reject(err)
+      })
+    })
   }
 
-  start () {
+  start (jsep) {
+    let body = { request: 'start', jsep }
 
+    return this.transaction('message', { body }, 'event').catch((err) => {
+      this.logger.error('StreamingJanusPlugin, cannot start stream', err)
+      throw err
+    })
   }
 
   stop () {
 
+  }
+
+  candidate (candidate) {
+    if (this.filterDirectCandidates && candidate.candidate && this.sdpHelper.isDirectCandidate(candidate.candidate)) {
+      return
+    }
+
+    return this.transaction('trickle', { candidate })
   }
 }
 

@@ -53,14 +53,64 @@ janus.connect().then(() => {
 
     document.addEventListener('click', (event) => {
       if (event.target && event.target.classList.contains('destroyActionLink')) {
-        console.log('Destroy', event.target.dataset.id)
-
         streaming.destroy(Number.parseInt(event.target.dataset.id, 10)).then(({data, json}) => {
           console.log('DESTROYED', data, json)
           listButton.click()
         })
       } else if (event.target && event.target.classList.contains('startActionLink')) {
         console.log('Start', event.target.dataset.id)
+      } else if (event.target && event.target.classList.contains('watchActionLink')) {
+        console.log('Watch', event.target.dataset.id)
+
+        let peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
+        peerConnection.onicecandidate = (event) => {
+          console.log('@onicecandidate', event)
+          if (!event.candidate || !event.candidate.candidate) {
+            streaming.candidate({completed: true})
+          } else {
+            let candidate = {
+              candidate: event.candidate.candidate,
+              sdpMid: event.candidate.sdpMid,
+              sdpMLineIndex: event.candidate.sdpMLineIndex
+            }
+            streaming.candidate(candidate)
+          }
+        }
+
+        peerConnection.onaddstream = (mediaStreamEvent) => {
+          console.log('@onaddstream', mediaStreamEvent)
+
+          let videoElement = document.getElementById('video')
+          videoElement.srcObject = mediaStreamEvent.stream
+          videoElement.play()
+        }
+
+        streaming.on('jsep', (jsep) => {
+          peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => {
+            console.log('remoteDescription set')
+            return peerConnection.createAnswer({offerToReceiveAudio: true, offerToReceiveVideo: true})
+          }).then(answer => {
+            console.log('answerCreated', answer)
+            peerConnection.setLocalDescription(answer)
+
+            streaming.start(answer).then(({body, json}) => {
+              console.log('START', body, json)
+            })
+          })
+        })
+
+        streaming.watch(Number.parseInt(event.target.dataset.id, 10)).then((jsep) => {
+          console.log('Watch', jsep)
+
+/*
+          listener.on('hangup', () => {
+            let videoElement = document.getElementById('video')
+            videoElement.srcObject = null
+
+            console.log('HANGUP')
+          })
+*/
+        })
       }
     })
   })
@@ -118,8 +168,14 @@ function createStreamTable (streams) {
     startActionLink.dataset.id = stream.id
     startActionLink.innerText = 'Start'
 
-    actionsCell.append(startActionLink)
-    actionsCell.append(destroyActionLink)
+    let watchActionLink = document.createElement('button')
+    watchActionLink.classList.add('watchActionLink', 'btn', 'btn-primary')
+    watchActionLink.dataset.id = stream.id
+    watchActionLink.innerText = 'Watch'
+
+    actionsCell.appendChild(watchActionLink)
+    actionsCell.appendChild(startActionLink)
+    actionsCell.appendChild(destroyActionLink)
     row.appendChild(actionsCell)
 
     tbody.appendChild(row)
