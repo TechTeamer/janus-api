@@ -28,7 +28,7 @@ janus.connect().then(() => {
         audioport: 8111,
         audiomcast: '127.0.0.1',
         audiopt: 111,
-        audiortpmap: 'opus/48000',
+        audiortpmap: 'opus/48000/2',
 
         video: true,
         videoport: 8113,

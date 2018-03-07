@@ -40,6 +40,8 @@ class StreamingJanusPlugin extends JanusPlugin {
   create (parameters) {
     let body = Object.assign(parameters, { request: 'create' })
 
+    //TODO: error handling
+
     return this.transaction('message', { body }, 'success').catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot create stream', err)
       throw err
