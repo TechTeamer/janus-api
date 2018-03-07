@@ -97,9 +97,9 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   start (jsep) {
-    let body = { request: 'start', jsep }
+    let body = { request: 'start' }
 
-    return this.transaction('message', { body }, 'event').catch((err) => {
+    return this.transaction('message', { body, jsep }, 'event').catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot start stream', err)
       throw err
     })

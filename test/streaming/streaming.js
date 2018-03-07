@@ -25,13 +25,13 @@ janus.connect().then(() => {
       let parameters = {
         type: 'rtp',
         audio: true,
-        audioport: 8111,
+        audioport: 8113,
         audiomcast: '127.0.0.1',
         audiopt: 111,
         audiortpmap: 'opus/48000/2',
 
         video: true,
-        videoport: 8113,
+        videoport: 8111,
         videomcast: '127.0.0.1',
         videopt: 96,
         videortpmap: 'VP8/90000'
