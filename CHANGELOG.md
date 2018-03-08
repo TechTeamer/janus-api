@@ -1,3 +1,7 @@
+2.3.0:
+- StreamingJanusPlugin added
+- fixes to VideoRoomPublisher
+
 2.2.0
 - RTP forward added to VideoRoomPublisher
 
