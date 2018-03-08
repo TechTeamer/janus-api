@@ -125,7 +125,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     }
 
     return this.transaction('message', { body }, 'success').catch((err) => {
-      this.logger.logger('VideoRoomPublisherJanusPlugin, cannot stop RTP forward', err)
+      this.logger.error('VideoRoomPublisherJanusPlugin, cannot stop RTP forward', err)
       throw err
     })
   }
@@ -138,7 +138,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     }
 
     return this.transaction('message', { body }, 'success').catch((err) => {
-      this.logger.logger('VideoRoomPublisherJanusPlugin, cannot set room bitrate', err)
+      this.logger.error('VideoRoomPublisherJanusPlugin, cannot set room bitrate', err)
       throw err
     })
   }
@@ -218,7 +218,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
       return this.join()
     }).catch((err) => {
-      this.logger.logger('VideoRoomPublisherJanusPlugin, cannot create room', err)
+      this.logger.error('VideoRoomPublisherJanusPlugin, cannot create room', err)
       throw err
     })
   }
