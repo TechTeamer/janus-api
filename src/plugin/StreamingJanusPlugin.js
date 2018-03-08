@@ -40,9 +40,13 @@ class StreamingJanusPlugin extends JanusPlugin {
   create (parameters) {
     let body = Object.assign(parameters, { request: 'create' })
 
-    //TODO: error handling
-
-    return this.transaction('message', { body }, 'success').catch((err) => {
+    return this.transaction('message', { body }, 'success').then(({data, json}) => {
+      if (data.error_code) {
+        this.logger.error('StreamingJanusPlugin error while create', data)
+        throw new Error('StreamingJanusPlugin error while create')
+      }
+      return {data, json}
+    }).catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot create stream', err)
       throw err
     })
@@ -82,6 +86,10 @@ class StreamingJanusPlugin extends JanusPlugin {
           throw new Error('StreamingJanusPlugin watch answer does not contains jsep')
         }
 
+        if (data.result && data.result.status) {
+          this.emit('statusChange', data.result.status)
+        }
+
         let jsep = json.jsep
         if (this.filterDirectCandidates && jsep.sdp) {
           jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
@@ -98,15 +106,74 @@ class StreamingJanusPlugin extends JanusPlugin {
 
   start (jsep) {
     let body = { request: 'start' }
+    let message = { body }
+    if (jsep) {
+      message.jsep = jsep
+    }
 
-    return this.transaction('message', { body, jsep }, 'event').catch((err) => {
+    return this.transaction('message', message, 'event').then(({data, json}) => {
+      if (data.result && data.result.status) {
+        this.emit('statusChange', data.result.status)
+      }
+      return {data, json}
+    }).catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot start stream', err)
       throw err
     })
   }
 
   stop () {
+    let body = { request: 'stop' }
 
+    return this.transaction('message', { body }, 'event').then(({data, json}) => {
+      if (data.result && data.result.status) {
+        this.emit('statusChange', data.result.status)
+      }
+      return {data, json}
+    }).catch((err) => {
+      this.logger.error('StreamingJanusPlugin, cannot start stream', err)
+      throw err
+    })
+  }
+
+  pause () {
+    let body = { request: 'pause' }
+
+    return this.transaction('message', { body }, 'event').then(({data, json}) => {
+      if (data.result && data.result.status) {
+        this.emit('statusChange', data.result.status)
+      }
+      return {data, json}
+    }).catch((err) => {
+      this.logger.error('StreamingJanusPlugin, cannot start stream', err)
+      throw err
+    })
+  }
+
+  info (id) {
+    let body = { request: 'info', id }
+
+    return this.transaction('message', { body }, 'success').catch((err) => {
+      this.logger.error('StreamingJanusPlugin, cannot start stream', err)
+      throw err
+    })
+  }
+
+  switch (id) {
+    let body = { request: 'switch', id }
+
+    return this.transaction('message', { body }, 'event').catch((err) => {
+      this.logger.error('StreamingJanusPlugin, cannot start stream', err)
+      throw err
+    })
+  }
+
+  onmessage (data, json) {
+    if (data && data.streaming === 'event' && data.result && data.result.status) {
+      this.emit('statusChange', data.result.status)
+    } else {
+      this.logger.error('StreamingJanusPlugin got unknown message', data, json)
+    }
   }
 
   candidate (candidate) {

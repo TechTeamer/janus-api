@@ -11,13 +11,18 @@ const Janus = require('../../src/Janus')
 let listButton = document.getElementById('listButton')
 let createButton = document.getElementById('createButton')
 let listHolder = document.getElementById('listHolder')
+let stopStreamButton = document.getElementById('stopStreamButton')
+let pauseStreamButton = document.getElementById('pauseStreamButton')
+let startStreamButton = document.getElementById('startStreamButton')
 
 let janus = new Janus(config, console)
+window.janus = janus
 
 janus.connect().then(() => {
   console.log('Janus connected')
 
   let streaming = new StreamingJanusPlugin(console, false)
+  window.streaming = streaming
 
   return janus.addPlugin(streaming).then(() => {
     createButton.removeAttribute('disabled')
@@ -42,6 +47,18 @@ janus.connect().then(() => {
         listButton.click()
       })
     })
+    stopStreamButton.addEventListener('click', () => {
+      console.log('Stop')
+      streaming.stop()
+    })
+    pauseStreamButton.addEventListener('click', () => {
+      console.log('Pause')
+      streaming.pause()
+    })
+    startStreamButton.addEventListener('click', () => {
+      console.log('Start')
+      streaming.start()
+    })
 
     listButton.removeAttribute('disabled')
     listButton.addEventListener('click', () => {
@@ -57,10 +74,14 @@ janus.connect().then(() => {
           console.log('DESTROYED', data, json)
           listButton.click()
         })
-      } else if (event.target && event.target.classList.contains('startActionLink')) {
-        console.log('Start', event.target.dataset.id)
+      } else if (event.target && event.target.classList.contains('infoActionLink')) {
+        console.log('Info', event.target.dataset.id)
+        streaming.info(Number.parseInt(event.target.dataset.id, 10)).then(({data, json}) => {
+          console.log('INFO', data, json)
+        })
       } else if (event.target && event.target.classList.contains('watchActionLink')) {
         console.log('Watch', event.target.dataset.id)
+        stopStreamButton.dataset.id = event.target.dataset.id
 
         let peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
         peerConnection.onicecandidate = (event) => {
@@ -85,7 +106,7 @@ janus.connect().then(() => {
           videoElement.play()
         }
 
-        streaming.on('jsep', (jsep) => {
+        streaming.watch(Number.parseInt(event.target.dataset.id, 10)).then((jsep) => {
           peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => {
             console.log('remoteDescription set')
             return peerConnection.createAnswer({offerToReceiveAudio: true, offerToReceiveVideo: true})
@@ -99,17 +120,21 @@ janus.connect().then(() => {
           })
         })
 
-        streaming.watch(Number.parseInt(event.target.dataset.id, 10)).then((jsep) => {
-          console.log('Watch', jsep)
+        streaming.on('hangup', () => {
+          let videoElement = document.getElementById('video')
+          videoElement.srcObject = null
 
-/*
-          listener.on('hangup', () => {
-            let videoElement = document.getElementById('video')
-            videoElement.srcObject = null
+          console.log('HANGUP')
+        })
 
-            console.log('HANGUP')
-          })
-*/
+        streaming.on('webrtcState', (a, b) => {
+          console.log('webrtcState', a, b)
+        })
+        streaming.on('mediaState', (a, b) => {
+          console.log('mediaState', a, b)
+        })
+        streaming.on('statusChange', (status) => {
+          console.log('statusChange', status)
         })
       }
     })
@@ -163,10 +188,10 @@ function createStreamTable (streams) {
     destroyActionLink.dataset.id = stream.id
     destroyActionLink.innerText = 'Destroy'
 
-    let startActionLink = document.createElement('button')
-    startActionLink.classList.add('startActionLink', 'btn', 'btn-primary')
-    startActionLink.dataset.id = stream.id
-    startActionLink.innerText = 'Start'
+    let infoActionLink = document.createElement('button')
+    infoActionLink.classList.add('infoActionLink', 'btn', 'btn-primary')
+    infoActionLink.dataset.id = stream.id
+    infoActionLink.innerText = 'Info'
 
     let watchActionLink = document.createElement('button')
     watchActionLink.classList.add('watchActionLink', 'btn', 'btn-primary')
@@ -174,7 +199,7 @@ function createStreamTable (streams) {
     watchActionLink.innerText = 'Watch'
 
     actionsCell.appendChild(watchActionLink)
-    actionsCell.appendChild(startActionLink)
+    actionsCell.appendChild(infoActionLink)
     actionsCell.appendChild(destroyActionLink)
     row.appendChild(actionsCell)
 
