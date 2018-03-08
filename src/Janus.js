@@ -2,6 +2,11 @@ const WebSocket = require('./WebSocket')
 const JanusPlugin = require('./JanusPlugin')
 const uuid = require('uuid/v4')
 
+const ignoredErrorCodes = [
+  458, // JANUS_ERROR_SESSION_NOT_FOUND
+  459 // JANUS_ERROR_HANDLE_NOT_FOUND
+]
+
 class Janus {
   constructor (config, logger) {
     this.ws = undefined
@@ -120,7 +125,7 @@ class Janus {
         transaction: transactionId
       })
 
-      this.transactions[request.transaction] = {resolve, reject, replyType}
+      this.transactions[request.transaction] = {resolve, reject, replyType, request}
       this.ws.send(JSON.stringify(request))
     })
   }
@@ -220,8 +225,8 @@ class Janus {
         return
       }
 
-      let plugindata = json['plugindata']
-      if (plugindata === undefined || plugindata === null) {
+      let pluginData = json['plugindata']
+      if (pluginData === undefined || pluginData === null) {
         transaction.resolve(json)
         return
       }
@@ -239,7 +244,7 @@ class Janus {
         return
       }
 
-      transaction.resolve({data: plugindata['data'], json})
+      transaction.resolve({data: pluginData['data'], json})
       return
     }
 
@@ -316,12 +321,15 @@ class Janus {
     }
 
     if (json['janus'] === 'error') { // Oops, something wrong happened
-      if (!json.error || json.error.code !== 458) { // do not log 'No such session' errors ?
-        this.logger.error('Ooops: ' + json['error'].code + ' ' + json['error'].reason)
-        this.logger.debug(json)
+      if (json.error && json.error.code && !ignoredErrorCodes.includes(json.error.code)) {
+        this.logger.error('Janus error response' + json)
       }
+
       let transaction = this.getTransaction(json, true)
       if (transaction && transaction.reject) {
+        if (transaction.request) {
+          this.logger.debug('Janus Error: rejecting transaction', transaction.request, json)
+        }
         transaction.reject(json)
       }
       return
@@ -333,8 +341,8 @@ class Janus {
         this.logger.warn('Missing sender...')
         return
       }
-      let plugindata = json['plugindata']
-      if (plugindata === undefined || plugindata === null) {
+      let pluginData = json['plugindata']
+      if (pluginData === undefined || pluginData === null) {
         this.logger.error('Missing plugindata...')
         return
       }
@@ -345,7 +353,7 @@ class Janus {
         return
       }
 
-      let data = plugindata['data']
+      let data = pluginData['data']
       let transaction = this.getTransaction(json)
       if (transaction) {
         if (data['error_code']) {
@@ -384,14 +392,16 @@ class Janus {
       // logger.debug('Sending Janus keepalive')
       this.transaction('keepalive').then(() => {
         setTimeout(() => { this.keepAlive() }, this.config.keepAliveIntervalMs)
+      }).catch((err) => {
+        this.logger.warn('Janus keepalive error', err)
       })
     }
   }
 
-  getTransaction (json, checkReplyType) {
+  getTransaction (json, ignoreReplyType = false) {
     let type = json['janus']
     let transactionId = json['transaction']
-    if (transactionId && this.transactions.hasOwnProperty(transactionId) && (checkReplyType || this.transactions[transactionId].replyType === type)) {
+    if (transactionId && this.transactions.hasOwnProperty(transactionId) && (ignoreReplyType || this.transactions[transactionId].replyType === type)) {
       let ret = this.transactions[transactionId]
       delete this.transactions[transactionId]
       return ret
