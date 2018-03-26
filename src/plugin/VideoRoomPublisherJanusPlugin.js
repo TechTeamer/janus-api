@@ -288,24 +288,6 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
     }
   }
-
-  mediaState (medium, on) {
-    this.logger.debug('JANUS mediaState', this.config.id, this.display, medium, on)
-  }
-
-  webrtcState (isReady, cause) {
-    if (isReady) {
-      this.emit('videochat:webrtcStream', {
-        roomId: this.config.id,
-        display: this.display,
-        janusRoomId: this.janusRoomId,
-        janusRoomMemberId: this.janusRoomMemberId,
-        janusRoomPrivateMemberId: this.janusRoomPrivateMemberId,
-        janusSessionId: this.janus.sessionId,
-        janusHandleId: this.janusHandleId
-      })
-    }
-  }
 }
 
 module.exports = VideoRoomPublisherJanusPlugin
