@@ -1,3 +1,6 @@
+3.0.0:
+- BC: VideoRoomPublisher events
+
 2.3.0:
 - StreamingJanusPlugin added
 - fixes to VideoRoomPublisher
