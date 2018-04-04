@@ -3,6 +3,16 @@ const SdpHelper = require('../SdpHelper')
 const SdpUtils = require('sdp')
 
 class VideoRoomPublisherJanusPlugin extends JanusPlugin {
+  static get MEDIA_VIDEO () {
+    return 'video'
+  }
+  static get MEDIA_AUDIO () {
+    return 'audio'
+  }
+  static get MEDIA_BLANK () {
+    return 'blank'
+  }
+
   constructor (config, display, logger, filterDirectCandidates = false) {
     if (!config) {
       throw new Error('unknown config')
@@ -27,6 +37,9 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.rtpForwardVideoStreamId = undefined
     this.rtpForwardAudioStreamId = undefined
     this.rtpForwardDataStreamId = undefined
+
+    // default: video
+    this.mediaType = VideoRoomPublisherJanusPlugin.MEDIA_VIDEO
   }
 
   /**
@@ -230,6 +243,13 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     }
 
     let body = { request: 'configure', audio: true, video: true }
+
+    if (this.mediaType === VideoRoomPublisherJanusPlugin.MEDIA_AUDIO) {
+      body.video = false
+    } else if (this.mediaType === VideoRoomPublisherJanusPlugin.MEDIA_BLANK) {
+      body.audio = false
+      body.video = false
+    }
 
     let jsep = offer
     if (this.filterDirectCandidates && jsep.sdp) {

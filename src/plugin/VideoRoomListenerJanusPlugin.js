@@ -18,15 +18,23 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
     this.janusRemoteFeedId = remoteFeedId
     this.filterDirectCandidates = !!filterDirectCandidates
     this.sdpHelper = new SdpHelper(this.logger)
+    // if safari: true
+    this.needH264 = false
   }
 
-  join () {
+  join (publisher) {
     let join = {
       request: 'join',
       room: this.janusRoomId,
       ptype: 'listener',
       feed: this.janusRemoteFeedId,
       private_id: this.janusRoomPrivateMemberId
+    }
+
+    if (this.needH264 && publisher && publisher['video_codec'] && publisher['video_codec'] !== 'h264') {
+      // Force only audio in Safari
+      join['offer_video'] = false
+      this.logger.error('Publisher is using ' + publisher['video_codec'] + ', but listener is a Safari: disable video', 'error - Listener codec problem')
     }
 
     return new Promise((resolve, reject) => {
