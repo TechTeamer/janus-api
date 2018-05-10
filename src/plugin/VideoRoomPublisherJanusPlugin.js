@@ -223,13 +223,13 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     })
   }
 
-  configure (offer) {
+  configure (offer, offerAudio = true, offerVideo = true) {
     if (!this.janusRoomMemberId) {
       this.logger.error('VideoRoomPublisherJanusPlugin, cannot configure without janusRoomMemberId')
       return
     }
 
-    let body = { request: 'configure', audio: true, video: true }
+    let body = { request: 'configure', audio: offerAudio, video: offerVideo }
 
     let jsep = offer
     if (this.filterDirectCandidates && jsep.sdp) {
