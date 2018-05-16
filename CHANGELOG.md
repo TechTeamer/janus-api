@@ -1,3 +1,6 @@
+3.1.0:
+- publisher and listener accepts video/audio arguments
+
 3.0.0:
 - BC: VideoRoomPublisher events
 
