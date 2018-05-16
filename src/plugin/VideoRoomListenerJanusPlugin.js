@@ -20,13 +20,15 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
     this.sdpHelper = new SdpHelper(this.logger)
   }
 
-  join () {
+  join (offerAudio = true, offerVideo = true) {
     let join = {
       request: 'join',
       room: this.janusRoomId,
       ptype: 'listener',
       feed: this.janusRemoteFeedId,
-      private_id: this.janusRoomPrivateMemberId
+      private_id: this.janusRoomPrivateMemberId,
+      offer_video: offerVideo,
+      offer_audio: offerAudio
     }
 
     return new Promise((resolve, reject) => {
