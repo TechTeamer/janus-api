@@ -91,7 +91,9 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
 
   hangup () {
     super.hangup()
-    this.janus.destroyPlugin(this)
+    this.janus.destroyPlugin(this).catch((err) => {
+      this.logger.error('VideoRoomListenerJanusPlugin, destroyPlugin error in hangup', err)
+    })
   }
 }
 
