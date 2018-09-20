@@ -27,7 +27,9 @@ class EchoJanusPlugin extends JanusPlugin {
   onmessage (data, json) {
     if (data && data.echotest === 'event' && data.result === 'done') {
       // okay, so the echo test has ended
-      this.janus.destroyPlugin(this)
+      this.janus.destroyPlugin(this).catch((err) => {
+        this.logger.error('EchoJanusPlugin, destroyPlugin error in onmessage', err)
+      })
     } else {
       this.logger.error('EchoJanusPlugin got unknown message', data, json)
     }

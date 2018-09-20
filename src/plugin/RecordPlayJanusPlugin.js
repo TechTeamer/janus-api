@@ -20,7 +20,9 @@ class RecordPlayJanusPlugin extends JanusPlugin {
   onmessage (data, json) {
     if (data && data.recordplay === 'event' && data.result === 'done') {
       // okay, so the recording has ended
-      this.janus.destroyPlugin(this)
+      this.janus.destroyPlugin(this).catch((err) => {
+        this.logger.error('RecordPlayJanusPlugin, destroyPlugin error in onmessage', err)
+      })
     } else {
       this.logger.error('RecordPlayJanusPlugin got unknown message', data, json)
     }
