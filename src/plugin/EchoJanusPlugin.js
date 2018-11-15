@@ -51,12 +51,16 @@ class EchoJanusPlugin extends JanusPlugin {
         }
 
         this.emit('jsep', jsep)
+      }).catch((err) => {
+        this.logger.error('EchoJanusPlugin, message error in consume', err)
       })
     } else if (data.type === 'candidate') {
       if (this.filterDirectCandidates && data.message.candidate && this.sdpHelper.isDirectCandidate(data.message.candidate)) {
         return
       }
-      this.transaction('trickle', { candidate: data.message })
+      this.transaction('trickle', { candidate: data.message }).catch((err) => {
+        this.logger.error('EchoJanusPlugin, candidate error in consume', err)
+      })
     } else {
       this.logger.error('EchoTransportSession unknown data type', data)
     }
