@@ -38,7 +38,7 @@ class EchoJanusPlugin extends JanusPlugin {
   consume (data) {
     if (data.type === 'message') {
       let sendData = { jsep: data.message.jsep, body: this.janusEchoBody }
-      this.transaction('message', sendData, 'event').then((ret) => {
+      return this.transaction('message', sendData, 'event').then((ret) => {
         let {json} = ret
         if (!json || !json.jsep) {
           this.logger.error('EchoJanusPlugin, no jsep in the transaction reply', ret)
@@ -53,16 +53,19 @@ class EchoJanusPlugin extends JanusPlugin {
         this.emit('jsep', jsep)
       }).catch((err) => {
         this.logger.error('EchoJanusPlugin, message error in consume', err)
+        throw err
       })
     } else if (data.type === 'candidate') {
       if (this.filterDirectCandidates && data.message.candidate && this.sdpHelper.isDirectCandidate(data.message.candidate)) {
-        return
+        return Promise.resolve()
       }
-      this.transaction('trickle', { candidate: data.message }).catch((err) => {
+      return this.transaction('trickle', { candidate: data.message }).catch((err) => {
         this.logger.error('EchoJanusPlugin, candidate error in consume', err)
+        throw err
       })
     } else {
       this.logger.error('EchoTransportSession unknown data type', data)
+      return Promise.reject(new Error('EchoTransportSession unknown data type'))
     }
   }
 }
