@@ -5,6 +5,48 @@ class SdpHelper {
     this.logger = logger
   }
 
+  filterH264Profiles (sdp, allowedProfile) {
+    let sections = SDPUtils.splitSections(sdp)
+
+    let ret = []
+    for (let section of sections) {
+      if (SDPUtils.getMid(section) === 'video') {
+        let newSection = []
+
+        let lines = SDPUtils.splitLines(section)
+
+        let rtpSections = [[]]
+        let i = 0
+        for (let line of lines) {
+          if (line.indexOf('a=rtpmap:') === 0) {
+            rtpSections.push([])
+            i++
+          }
+          rtpSections[i].push(line)
+        }
+
+        rtpSections[0].map(l => newSection.push(l))
+        for (let j = 1; j < rtpSections.length; j++) {
+          let rtpSection = rtpSections[j]
+          let parsed = SDPUtils.parseRtpMap(rtpSection[0])
+
+          if (parsed && parsed.name === 'H264') {
+            let fmtp = rtpSection.filter(l => l.indexOf('a=fmtp:') === 0).shift()
+
+            if (fmtp.indexOf('profile-level-id=' + allowedProfile) !== -1) {
+              rtpSections[j].map(l => newSection.push(l))
+            }
+          } else {
+            rtpSections[j].map(l => newSection.push(l))
+          }
+        }
+
+        newSection.map(l => ret.push(l))
+      } else {
+        SDPUtils.splitLines(section).map(l => ret.push(l))
+      }
+    }
+    
   filterDirectCandidates (sdp, force = false) {
     let lines = SDPUtils.splitLines(sdp)
 
