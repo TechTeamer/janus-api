@@ -13,7 +13,7 @@ class JanusPlugin extends EventEmitter {
   }
 
   getAttachPayload () {
-    return {plugin: this.pluginName, opaque_id: this.id}
+    return { plugin: this.pluginName, opaque_id: this.id }
   }
 
   transaction (message, additionalFields, replyType) {

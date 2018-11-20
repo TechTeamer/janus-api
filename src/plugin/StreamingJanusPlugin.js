@@ -40,12 +40,12 @@ class StreamingJanusPlugin extends JanusPlugin {
   create (parameters) {
     let body = Object.assign(parameters, { request: 'create' })
 
-    return this.transaction('message', { body }, 'success').then(({data, json}) => {
+    return this.transaction('message', { body }, 'success').then(({ data, json }) => {
       if (data.error_code) {
         this.logger.error('StreamingJanusPlugin error while create', data)
         throw new Error('StreamingJanusPlugin error while create')
       }
-      return {data, json}
+      return { data, json }
     }).catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot create stream', err)
       throw err
@@ -74,7 +74,7 @@ class StreamingJanusPlugin extends JanusPlugin {
     let body = { request: 'watch', id }
 
     return new Promise((resolve, reject) => {
-      this.transaction('message', {body}, 'event').then((param) => {
+      this.transaction('message', { body }, 'event').then((param) => {
         let { data, json } = param || {}
 
         if (!data || data.streaming !== 'event') {
@@ -111,11 +111,11 @@ class StreamingJanusPlugin extends JanusPlugin {
       message.jsep = jsep
     }
 
-    return this.transaction('message', message, 'event').then(({data, json}) => {
+    return this.transaction('message', message, 'event').then(({ data, json }) => {
       if (data.result && data.result.status) {
         this.emit('statusChange', data.result.status)
       }
-      return {data, json}
+      return { data, json }
     }).catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot start stream', err)
       throw err
@@ -125,11 +125,11 @@ class StreamingJanusPlugin extends JanusPlugin {
   stop () {
     let body = { request: 'stop' }
 
-    return this.transaction('message', { body }, 'event').then(({data, json}) => {
+    return this.transaction('message', { body }, 'event').then(({ data, json }) => {
       if (data.result && data.result.status) {
         this.emit('statusChange', data.result.status)
       }
-      return {data, json}
+      return { data, json }
     }).catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot start stream', err)
       throw err
@@ -139,11 +139,11 @@ class StreamingJanusPlugin extends JanusPlugin {
   pause () {
     let body = { request: 'pause' }
 
-    return this.transaction('message', { body }, 'event').then(({data, json}) => {
+    return this.transaction('message', { body }, 'event').then(({ data, json }) => {
       if (data.result && data.result.status) {
         this.emit('statusChange', data.result.status)
       }
-      return {data, json}
+      return { data, json }
     }).catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot start stream', err)
       throw err

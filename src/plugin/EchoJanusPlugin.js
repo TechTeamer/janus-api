@@ -39,7 +39,7 @@ class EchoJanusPlugin extends JanusPlugin {
     if (data.type === 'message') {
       let sendData = { jsep: data.message.jsep, body: this.janusEchoBody }
       return this.transaction('message', sendData, 'event').then((ret) => {
-        let {json} = ret
+        let { json } = ret
         if (!json || !json.jsep) {
           this.logger.error('EchoJanusPlugin, no jsep in the transaction reply', ret)
           return

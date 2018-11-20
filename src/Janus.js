@@ -46,7 +46,7 @@ class Janus {
         }
 
         let transaction = uuid()
-        let request = {janus: 'create', transaction}
+        let request = { janus: 'create', transaction }
 
         this.transactions[transaction] = {
           resolve: (json) => {
@@ -125,7 +125,7 @@ class Janus {
         transaction: transactionId
       })
 
-      this.transactions[request.transaction] = {resolve, reject, replyType, request}
+      this.transactions[request.transaction] = { resolve, reject, replyType, request }
       this.ws.send(JSON.stringify(request))
     })
   }
@@ -178,7 +178,7 @@ class Janus {
         return
       }
 
-      this.transaction('detach', {plugin: plugin.pluginName, handle_id: plugin.janusHandleId}, 'success', 5000).then(() => {
+      this.transaction('detach', { plugin: plugin.pluginName, handle_id: plugin.janusHandleId }, 'success', 5000).then(() => {
         delete this.pluginHandles[plugin.pluginName]
         plugin.detach()
 
@@ -244,7 +244,7 @@ class Janus {
         return
       }
 
-      transaction.resolve({data: pluginData['data'], json})
+      transaction.resolve({ data: pluginData['data'], json })
       return
     }
 
@@ -357,9 +357,9 @@ class Janus {
       let transaction = this.getTransaction(json)
       if (transaction) {
         if (data['error_code']) {
-          transaction.reject({data, json})
+          transaction.reject({ data, json })
         } else {
-          transaction.resolve({data, json})
+          transaction.resolve({ data, json })
         }
         return
       }

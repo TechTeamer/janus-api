@@ -44,7 +44,7 @@ function connect () {
       peerConnection.onicecandidate = (event) => {
         console.log('@onicecandidate', event)
         if (!event.candidate || !event.candidate.candidate) {
-          listener.candidate({completed: true})
+          listener.candidate({ completed: true })
         } else {
           let candidate = {
             candidate: event.candidate.candidate,
@@ -66,7 +66,7 @@ function connect () {
       listener.on('jsep', (jsep) => {
         peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => {
           console.log('remoteDescription set')
-          return peerConnection.createAnswer({offerToReceiveAudio: true, offerToReceiveVideo: true})
+          return peerConnection.createAnswer({ offerToReceiveAudio: true, offerToReceiveVideo: true })
         }).then(answer => {
           console.log('answerCreated')
           peerConnection.setLocalDescription(answer)

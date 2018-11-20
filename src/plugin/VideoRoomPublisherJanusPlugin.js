@@ -47,7 +47,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       body.audio_port = audioPortNumber
     }
 
-    return this.transaction('message', { body }, 'success').then(({data, json}) => {
+    return this.transaction('message', { body }, 'success').then(({ data, json }) => {
       if (data && data.rtp_stream && data.rtp_stream.video_stream_id) {
         this.rtpForwardVideoStreamId = data.rtp_stream.video_stream_id
       }

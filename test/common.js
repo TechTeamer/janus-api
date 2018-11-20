@@ -14,9 +14,9 @@ module.exports = {
   },
   peerConnectionConfig: {
     'iceServers': [
-      {'url': 'stun:turnserver.techteamer.com:443'},
-      {'username': 'demo', 'url': 'turn:turnserver.techteamer.com:443?transport=udp', 'credential': 'secret'},
-      {'username': 'demo', 'url': 'turn:turnserver.techteamer.com:443?transport=tcp', 'credential': 'secret'}
+      { 'url': 'stun:turnserver.techteamer.com:443' },
+      { 'username': 'demo', 'url': 'turn:turnserver.techteamer.com:443?transport=udp', 'credential': 'secret' },
+      { 'username': 'demo', 'url': 'turn:turnserver.techteamer.com:443?transport=tcp', 'credential': 'secret' }
     ]
   }
 }

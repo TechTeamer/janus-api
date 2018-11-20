@@ -50,12 +50,12 @@ janus.connect().then(() => {
         })
       })
 
-      return navigator.mediaDevices.getUserMedia({audio: true, video: true}).then((stream) => {
+      return navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((stream) => {
         console.log('getUserMedia got stream')
 
         peerConnection.addStream(stream)
 
-        return peerConnection.createOffer({offerToReceiveAudio: true, offerToReceiveVideo: true}).then((offer) => {
+        return peerConnection.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true }).then((offer) => {
           console.log('got offer', offer)
 
           return peerConnection.setLocalDescription(offer).then(() => {

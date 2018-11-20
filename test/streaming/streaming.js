@@ -42,7 +42,7 @@ janus.connect().then(() => {
         videortpmap: 'VP8/90000'
       }
 
-      streaming.create(parameters).then(({data, json}) => {
+      streaming.create(parameters).then(({ data, json }) => {
         console.log('CREATED', data, json)
         listButton.click()
       })
@@ -62,7 +62,7 @@ janus.connect().then(() => {
 
     listButton.removeAttribute('disabled')
     listButton.addEventListener('click', () => {
-      streaming.list().then(({data, json}) => {
+      streaming.list().then(({ data, json }) => {
         console.log('LIST', data)
         createStreamTable(data.list)
       })
@@ -70,13 +70,13 @@ janus.connect().then(() => {
 
     document.addEventListener('click', (event) => {
       if (event.target && event.target.classList.contains('destroyActionLink')) {
-        streaming.destroy(Number.parseInt(event.target.dataset.id, 10)).then(({data, json}) => {
+        streaming.destroy(Number.parseInt(event.target.dataset.id, 10)).then(({ data, json }) => {
           console.log('DESTROYED', data, json)
           listButton.click()
         })
       } else if (event.target && event.target.classList.contains('infoActionLink')) {
         console.log('Info', event.target.dataset.id)
-        streaming.info(Number.parseInt(event.target.dataset.id, 10)).then(({data, json}) => {
+        streaming.info(Number.parseInt(event.target.dataset.id, 10)).then(({ data, json }) => {
           console.log('INFO', data, json)
         })
       } else if (event.target && event.target.classList.contains('watchActionLink')) {
@@ -87,7 +87,7 @@ janus.connect().then(() => {
         peerConnection.onicecandidate = (event) => {
           console.log('@onicecandidate', event)
           if (!event.candidate || !event.candidate.candidate) {
-            streaming.candidate({completed: true})
+            streaming.candidate({ completed: true })
           } else {
             let candidate = {
               candidate: event.candidate.candidate,
@@ -109,12 +109,12 @@ janus.connect().then(() => {
         streaming.watch(Number.parseInt(event.target.dataset.id, 10)).then((jsep) => {
           peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => {
             console.log('remoteDescription set')
-            return peerConnection.createAnswer({offerToReceiveAudio: true, offerToReceiveVideo: true})
+            return peerConnection.createAnswer({ offerToReceiveAudio: true, offerToReceiveVideo: true })
           }).then(answer => {
             console.log('answerCreated', answer)
             peerConnection.setLocalDescription(answer)
 
-            streaming.start(answer).then(({body, json}) => {
+            streaming.start(answer).then(({ body, json }) => {
               console.log('START', body, json)
             })
           })

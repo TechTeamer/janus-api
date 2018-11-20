@@ -32,7 +32,7 @@ class RecordPlayJanusPlugin extends JanusPlugin {
     if (data.type === 'message') {
       let sendData = { jsep: data.message.jsep, body: { request: 'record', name: 'hello' } }
       this.transaction('message', sendData, 'event').then((ret) => {
-        let {json, data} = ret
+        let { json, data } = ret
         if (!data || !data.result || !data.result.id) {
           this.logger.error('RecordPlayJanusPlugin, no recording id in the transaction reply', ret)
           return
