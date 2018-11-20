@@ -1,3 +1,9 @@
+4.0.0:
+- added more function to SdpHelper
+- more error handling to Plugins
+- supported only node 6+ on backends
+- upgraded dependencies
+
 3.1.0:
 - publisher and listener accepts video/audio arguments
 
