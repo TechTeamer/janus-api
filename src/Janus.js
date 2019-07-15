@@ -438,7 +438,8 @@ class Janus {
   }
 
   _cleanupTransactions () {
-    Object.keys(this.transactions).forEach((transaction) => {
+    Object.keys(this.transactions).forEach((transactionId) => {
+      const transaction = this.transactions[transactionId]
       if (transaction.reject) {
         transaction.reject()
       }
