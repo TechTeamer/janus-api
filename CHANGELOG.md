@@ -1,3 +1,6 @@
+5.0.0:
+- drop support for node v6
+
 4.0.1:
 - fix for cleaning up transactions
 
