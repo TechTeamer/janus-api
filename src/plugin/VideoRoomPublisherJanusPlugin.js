@@ -33,7 +33,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
    * Usage: ffmpeg -analyzeduration 300M -probesize 300M -protocol_whitelist file,udp,rtp -i sdp.file  -c:v h264 -c:a aac -ar 16k -ac 1 -g 50 -max_muxing_queue_size 9999 -preset ultrafast -tune zerolatency  -f flv rtmp://127.0.0.1:1935/mytv/stream
    */
   startRTPForward (host, videoPortNumber, audioPortNumber) {
-    let body = {
+    const body = {
       request: 'rtp_forward',
       room: this.janusRoomId,
       publisher_id: this.janusRoomMemberId,
@@ -70,10 +70,10 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
           return // session part
         }
 
-        let mid = SdpUtils.getMid(section)
-        let rtp = SdpUtils.parseRtpParameters(section)
+        const mid = SdpUtils.getMid(section)
+        const rtp = SdpUtils.parseRtpParameters(section)
 
-        let codec = rtp.codecs[0]
+        const codec = rtp.codecs[0]
         if (!codec) {
           return
         }
@@ -102,7 +102,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   stopRTPForward () {
-    let ret = []
+    const ret = []
     if (this.rtpForwardVideoStreamId) {
       ret.push(this.stopRTPForwardStream(this.rtpForwardVideoStreamId))
     }
@@ -117,7 +117,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   stopRTPForwardStream (streamId) {
-    let body = {
+    const body = {
       request: 'stop_rtp_forward',
       room: this.janusRoomId,
       publisher_id: this.janusRoomMemberId,
@@ -131,7 +131,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   setRoomBitrate (bitrate) {
-    let body = {
+    const body = {
       request: 'edit',
       room: this.janusRoomId,
       new_bitrate: bitrate
@@ -145,13 +145,13 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
   connect () {
     return this.transaction('message', { body: { request: 'list' } }, 'success').then((param) => {
-      let { data } = param || {}
+      const { data } = param || {}
       if (!data || !Array.isArray(data.list)) {
         this.logger.error('VideoRoomPublisherJanusPlugin, could not find roomList', data)
         throw new Error('VideoRoomPublisherJanusPlugin, could not find roomList')
       }
 
-      let foundRoom = data.list.find((room) => room.description === '' + this.config.id)
+      const foundRoom = data.list.find((room) => room.description === '' + this.config.id)
       if (foundRoom) {
         this.janusRoomId = foundRoom.room
         return this.join()
@@ -165,11 +165,11 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   join () {
-    let body = { request: 'join', room: this.janusRoomId, ptype: 'publisher', display: this.display }
+    const body = { request: 'join', room: this.janusRoomId, ptype: 'publisher', display: this.display }
 
     return new Promise((resolve, reject) => {
       this.transaction('message', { body }, 'event').then((param) => {
-        let { data } = param || {}
+        const { data } = param || {}
         if (!data || !data.id || !data.private_id || !data.publishers) {
           this.logger.error('VideoRoomPublisherJanusPlugin, could not join room', data)
           throw new Error('VideoRoomPublisherJanusPlugin, could not join room')
@@ -190,7 +190,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   createRoom () {
-    let body = {
+    const body = {
       request: 'create',
       description: '' + this.config.id,
       record: this.config.record,
@@ -208,7 +208,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     }
 
     return this.transaction('message', { body }, 'success').then((param) => {
-      let { data } = param || {}
+      const { data } = param || {}
       if (!data || !data.room) {
         this.logger.error('VideoRoomPublisherJanusPlugin, could not create room', data)
         throw new Error('VideoRoomPublisherJanusPlugin, could not create room')
@@ -229,9 +229,9 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       return
     }
 
-    let body = { request: 'configure', audio: relayAudio, video: relayVideo }
+    const body = { request: 'configure', audio: relayAudio, video: relayVideo }
 
-    let jsep = offer
+    const jsep = offer
     if (this.filterDirectCandidates && jsep.sdp) {
       jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
     }
@@ -239,12 +239,12 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     this.offerSdp = jsep.sdp
 
     return this.transaction('message', { body, jsep }, 'event').then((param) => {
-      let { json } = param || {}
+      const { json } = param || {}
       if (!json.jsep) {
         throw new Error('cannot configure')
       }
 
-      let jsep = json.jsep
+      const jsep = json.jsep
       if (this.filterDirectCandidates && jsep.sdp) {
         jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
       }
@@ -267,7 +267,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     // TODO data.videoroom === 'destroyed' handling
     // TODO unpublished === 'ok' handling : we are unpublished
 
-    let { videoroom, room, unpublished, leaving, publishers } = data
+    const { videoroom, room, unpublished, leaving, publishers } = data
 
     if (!data || !videoroom || videoroom !== 'event') {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)

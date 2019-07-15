@@ -2,7 +2,7 @@ const browserify = require('browserify')
 const httpServer = require('http-server')
 const fs = require('fs')
 
-let pack = (input, output) => {
+const pack = (input, output) => {
   browserify(input, { debug: true })
     .exclude(['ws'])
     .bundle((err, buf) => {

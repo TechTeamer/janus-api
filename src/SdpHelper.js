@@ -10,17 +10,17 @@ class SdpHelper {
    * @param allowedProfiles array[]|string|Regexp
    */
   filterH264Profiles (sdp, allowedProfiles) {
-    let sections = SDPUtils.splitSections(sdp)
+    const sections = SDPUtils.splitSections(sdp)
 
-    let ret = []
-    for (let section of sections) {
+    const ret = []
+    for (const section of sections) {
       if (SDPUtils.getMid(section) === 'video') {
-        let newSection = []
-        let lines = SDPUtils.splitLines(section)
-        let rtpSections = [[]]
+        const newSection = []
+        const lines = SDPUtils.splitLines(section)
+        const rtpSections = [[]]
         let i = 0
 
-        for (let line of lines) {
+        for (const line of lines) {
           if (line.indexOf('a=rtpmap:') === 0) {
             rtpSections.push([])
             i++
@@ -30,15 +30,15 @@ class SdpHelper {
 
         rtpSections[0].map(l => newSection.push(l))
         for (let j = 1; j < rtpSections.length; j++) {
-          let rtpSection = rtpSections[j]
-          let parsed = SDPUtils.parseRtpMap(rtpSection[0])
+          const rtpSection = rtpSections[j]
+          const parsed = SDPUtils.parseRtpMap(rtpSection[0])
 
           if (parsed && parsed.name === 'H264') {
-            let fmtp = rtpSection.filter(l => l.indexOf('a=fmtp:') === 0).shift()
+            const fmtp = rtpSection.filter(l => l.indexOf('a=fmtp:') === 0).shift()
 
             let isAllowed = false
             if (Array.isArray(allowedProfiles)) {
-              for (let allowedProfile of allowedProfiles) {
+              for (const allowedProfile of allowedProfiles) {
                 isAllowed = isAllowed || fmtp.indexOf('profile-level-id=' + allowedProfile) !== -1
               }
             } else if (typeof allowedProfiles === 'string') {
@@ -65,12 +65,12 @@ class SdpHelper {
   }
 
   filterDirectCandidates (sdp, force = false) {
-    let lines = SDPUtils.splitLines(sdp)
+    const lines = SDPUtils.splitLines(sdp)
 
-    let ret = []
+    const ret = []
     let haveCandidates = false
     let haveNonDirectCandidates = false
-    for (let line of lines) {
+    for (const line of lines) {
       if (line.startsWith('a=candidate')) {
         haveCandidates = true
         if (!this.isDirectCandidate(line)) {
@@ -96,7 +96,7 @@ class SdpHelper {
   }
 
   isDirectCandidate (candidateLine) {
-    let candidate = SDPUtils.parseCandidate(candidateLine)
+    const candidate = SDPUtils.parseCandidate(candidateLine)
     return candidate.type === 'host' || candidate.type === 'srflx' || candidate.tcpType === 'host' || candidate.tcpType === 'srflx'
   }
 }

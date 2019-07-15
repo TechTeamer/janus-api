@@ -6,12 +6,12 @@ const common = require('../common')
 const EchoJanusPlugin = require('../../src/plugin/EchoJanusPlugin')
 const Janus = require('../../src/Janus')
 
-let janus = new Janus(common.janus, console)
+const janus = new Janus(common.janus, console)
 
 janus.connect().then(() => {
   console.log('Janus connected')
 
-  let echo = new EchoJanusPlugin(console, false)
+  const echo = new EchoJanusPlugin(console, false)
 
   return janus.addPlugin(echo).then(() => {
     console.log('EchoJanusPlugin added')
@@ -19,13 +19,13 @@ janus.connect().then(() => {
     return echo.connect().then(() => {
       console.log('EchoJanusPlugin connected')
 
-      let peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
+      const peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
 
       peerConnection.onicecandidate = (event) => {
         if (!event.candidate || !event.candidate.candidate) {
           echo.consume({ type: 'candidate', message: { completed: true } })
         } else {
-          let candidate = {
+          const candidate = {
             candidate: event.candidate.candidate,
             sdpMid: event.candidate.sdpMid,
             sdpMLineIndex: event.candidate.sdpMLineIndex
@@ -37,7 +37,7 @@ janus.connect().then(() => {
       peerConnection.onaddstream = (mediaStreamEvent) => {
         console.log('GOT STREAM', mediaStreamEvent)
 
-        let videoElement = document.getElementById('video')
+        const videoElement = document.getElementById('video')
         videoElement.srcObject = mediaStreamEvent.stream
         videoElement.play()
       }
@@ -60,7 +60,7 @@ janus.connect().then(() => {
 
           return peerConnection.setLocalDescription(offer).then(() => {
             console.log('setlocalDescription')
-            let jsep = { type: offer.type, sdp: offer.sdp }
+            const jsep = { type: offer.type, sdp: offer.sdp }
 
             echo.consume({ type: 'message', message: { jsep: jsep } })
           })

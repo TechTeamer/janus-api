@@ -30,9 +30,9 @@ class RecordPlayJanusPlugin extends JanusPlugin {
 
   consume (data) {
     if (data.type === 'message') {
-      let sendData = { jsep: data.message.jsep, body: { request: 'record', name: 'hello' } }
+      const sendData = { jsep: data.message.jsep, body: { request: 'record', name: 'hello' } }
       this.transaction('message', sendData, 'event').then((ret) => {
-        let { json, data } = ret
+        const { json, data } = ret
         if (!data || !data.result || !data.result.id) {
           this.logger.error('RecordPlayJanusPlugin, no recording id in the transaction reply', ret)
           return
@@ -45,7 +45,7 @@ class RecordPlayJanusPlugin extends JanusPlugin {
           return
         }
 
-        let jsep = json.jsep
+        const jsep = json.jsep
         if (this.filterDirectCandidates && jsep.sdp) {
           jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
         }
@@ -58,7 +58,7 @@ class RecordPlayJanusPlugin extends JanusPlugin {
       }
       this.transaction('trickle', { candidate: data.message })
     } else if (data.type === 'stop') {
-      let sendData = { body: { request: 'stop' } }
+      const sendData = { body: { request: 'stop' } }
       this.transaction('message', sendData, 'event')
     } else {
       this.logger.error('RecordPlayJanusPlugin unknown data type', data)

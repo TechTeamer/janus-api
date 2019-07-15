@@ -8,26 +8,26 @@ const config = new JanusConfig(common.janus)
 const StreamingJanusPlugin = require('../../src/plugin/StreamingJanusPlugin')
 const Janus = require('../../src/Janus')
 
-let listButton = document.getElementById('listButton')
-let createButton = document.getElementById('createButton')
-let listHolder = document.getElementById('listHolder')
-let stopStreamButton = document.getElementById('stopStreamButton')
-let pauseStreamButton = document.getElementById('pauseStreamButton')
-let startStreamButton = document.getElementById('startStreamButton')
+const listButton = document.getElementById('listButton')
+const createButton = document.getElementById('createButton')
+const listHolder = document.getElementById('listHolder')
+const stopStreamButton = document.getElementById('stopStreamButton')
+const pauseStreamButton = document.getElementById('pauseStreamButton')
+const startStreamButton = document.getElementById('startStreamButton')
 
-let janus = new Janus(config, console)
+const janus = new Janus(config, console)
 window.janus = janus
 
 janus.connect().then(() => {
   console.log('Janus connected')
 
-  let streaming = new StreamingJanusPlugin(console, false)
+  const streaming = new StreamingJanusPlugin(console, false)
   window.streaming = streaming
 
   return janus.addPlugin(streaming).then(() => {
     createButton.removeAttribute('disabled')
     createButton.addEventListener('click', () => {
-      let parameters = {
+      const parameters = {
         type: 'rtp',
         audio: true,
         audioport: 8113,
@@ -83,13 +83,13 @@ janus.connect().then(() => {
         console.log('Watch', event.target.dataset.id)
         stopStreamButton.dataset.id = event.target.dataset.id
 
-        let peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
+        const peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
         peerConnection.onicecandidate = (event) => {
           console.log('@onicecandidate', event)
           if (!event.candidate || !event.candidate.candidate) {
             streaming.candidate({ completed: true })
           } else {
-            let candidate = {
+            const candidate = {
               candidate: event.candidate.candidate,
               sdpMid: event.candidate.sdpMid,
               sdpMLineIndex: event.candidate.sdpMLineIndex
@@ -101,7 +101,7 @@ janus.connect().then(() => {
         peerConnection.onaddstream = (mediaStreamEvent) => {
           console.log('@onaddstream', mediaStreamEvent)
 
-          let videoElement = document.getElementById('video')
+          const videoElement = document.getElementById('video')
           videoElement.srcObject = mediaStreamEvent.stream
           videoElement.play()
         }
@@ -121,7 +121,7 @@ janus.connect().then(() => {
         })
 
         streaming.on('hangup', () => {
-          let videoElement = document.getElementById('video')
+          const videoElement = document.getElementById('video')
           videoElement.srcObject = null
 
           console.log('HANGUP')
@@ -146,54 +146,54 @@ janus.connect().then(() => {
 function createStreamTable (streams) {
   listHolder.innerHTML = ''
 
-  let table = document.createElement('div')
+  const table = document.createElement('div')
   table.classList.add('table')
 
-  let thead = document.createElement('thead')
+  const thead = document.createElement('thead')
   table.appendChild(thead)
-  let theadRow = document.createElement('tr')
+  const theadRow = document.createElement('tr')
   thead.appendChild(theadRow)
-  let idHeadRow = document.createElement('th')
+  const idHeadRow = document.createElement('th')
   idHeadRow.innerText = 'Id'
   theadRow.appendChild(idHeadRow)
-  let typeHeadRow = document.createElement('th')
+  const typeHeadRow = document.createElement('th')
   typeHeadRow.innerText = 'type'
   theadRow.appendChild(typeHeadRow)
-  let descriptionHeadRow = document.createElement('th')
+  const descriptionHeadRow = document.createElement('th')
   descriptionHeadRow.innerText = 'Description'
   theadRow.appendChild(descriptionHeadRow)
-  let actionsHeadRow = document.createElement('th')
+  const actionsHeadRow = document.createElement('th')
   actionsHeadRow.innerText = 'Actions'
   theadRow.appendChild(actionsHeadRow)
 
-  let tbody = document.createElement('tbody')
+  const tbody = document.createElement('tbody')
   table.appendChild(tbody)
 
   streams.forEach((stream) => {
-    let row = document.createElement('tr')
+    const row = document.createElement('tr')
 
-    let idCell = document.createElement('td')
+    const idCell = document.createElement('td')
     idCell.innerText = stream.id
     row.appendChild(idCell)
-    let typeCell = document.createElement('td')
+    const typeCell = document.createElement('td')
     typeCell.innerText = stream.type
     row.appendChild(typeCell)
-    let descriptionCell = document.createElement('td')
+    const descriptionCell = document.createElement('td')
     descriptionCell.innerText = stream.description
     row.appendChild(descriptionCell)
 
-    let actionsCell = document.createElement('td')
-    let destroyActionLink = document.createElement('button')
+    const actionsCell = document.createElement('td')
+    const destroyActionLink = document.createElement('button')
     destroyActionLink.classList.add('destroyActionLink', 'btn', 'btn-primary')
     destroyActionLink.dataset.id = stream.id
     destroyActionLink.innerText = 'Destroy'
 
-    let infoActionLink = document.createElement('button')
+    const infoActionLink = document.createElement('button')
     infoActionLink.classList.add('infoActionLink', 'btn', 'btn-primary')
     infoActionLink.dataset.id = stream.id
     infoActionLink.innerText = 'Info'
 
-    let watchActionLink = document.createElement('button')
+    const watchActionLink = document.createElement('button')
     watchActionLink.classList.add('watchActionLink', 'btn', 'btn-primary')
     watchActionLink.dataset.id = stream.id
     watchActionLink.innerText = 'Watch'

@@ -38,7 +38,7 @@ class StreamingJanusPlugin extends JanusPlugin {
    * @returns {Promise<T>}
    */
   create (parameters) {
-    let body = Object.assign(parameters, { request: 'create' })
+    const body = Object.assign(parameters, { request: 'create' })
 
     return this.transaction('message', { body }, 'success').then(({ data, json }) => {
       if (data.error_code) {
@@ -53,7 +53,7 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   destroy (id, permanent = false) {
-    let body = { request: 'destroy', id, permanent }
+    const body = { request: 'destroy', id, permanent }
 
     return this.transaction('message', { body }, 'success').catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot destroy stream', err)
@@ -62,7 +62,7 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   list () {
-    let body = { request: 'list' }
+    const body = { request: 'list' }
 
     return this.transaction('message', { body }, 'success').catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot list streams', err)
@@ -71,11 +71,11 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   watch (id) {
-    let body = { request: 'watch', id }
+    const body = { request: 'watch', id }
 
     return new Promise((resolve, reject) => {
       this.transaction('message', { body }, 'event').then((param) => {
-        let { data, json } = param || {}
+        const { data, json } = param || {}
 
         if (!data || data.streaming !== 'event') {
           this.logger.error('StreamingJanusPlugin watch error ', data, json)
@@ -90,7 +90,7 @@ class StreamingJanusPlugin extends JanusPlugin {
           this.emit('statusChange', data.result.status)
         }
 
-        let jsep = json.jsep
+        const jsep = json.jsep
         if (this.filterDirectCandidates && jsep.sdp) {
           jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
         }
@@ -105,8 +105,8 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   start (jsep) {
-    let body = { request: 'start' }
-    let message = { body }
+    const body = { request: 'start' }
+    const message = { body }
     if (jsep) {
       message.jsep = jsep
     }
@@ -123,7 +123,7 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   stop () {
-    let body = { request: 'stop' }
+    const body = { request: 'stop' }
 
     return this.transaction('message', { body }, 'event').then(({ data, json }) => {
       if (data.result && data.result.status) {
@@ -137,7 +137,7 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   pause () {
-    let body = { request: 'pause' }
+    const body = { request: 'pause' }
 
     return this.transaction('message', { body }, 'event').then(({ data, json }) => {
       if (data.result && data.result.status) {
@@ -151,7 +151,7 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   info (id) {
-    let body = { request: 'info', id }
+    const body = { request: 'info', id }
 
     return this.transaction('message', { body }, 'success').catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot start stream', err)
@@ -160,7 +160,7 @@ class StreamingJanusPlugin extends JanusPlugin {
   }
 
   switch (id) {
-    let body = { request: 'switch', id }
+    const body = { request: 'switch', id }
 
     return this.transaction('message', { body }, 'event').catch((err) => {
       this.logger.error('StreamingJanusPlugin, cannot start stream', err)

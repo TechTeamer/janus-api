@@ -18,12 +18,12 @@ const roomConfig = new JanusRoomConfig({
 const VideoRoomPublisherJanusPlugin = require('../../src/plugin/VideoRoomPublisherJanusPlugin')
 const Janus = require('../../src/Janus')
 
-let janus = new Janus(janusConfig, console)
+const janus = new Janus(janusConfig, console)
 
 janus.connect().then(() => {
   console.log('Janus connected')
 
-  let publisher = new VideoRoomPublisherJanusPlugin(roomConfig, 'operator', console, false)
+  const publisher = new VideoRoomPublisherJanusPlugin(roomConfig, 'operator', console, false)
 
   return janus.addPlugin(publisher).then(() => {
     console.log('VideoRoomPublisherJanusPlugin added')
@@ -39,16 +39,16 @@ janus.connect().then(() => {
     })
 
     document.getElementById('bitrate-button').addEventListener('click', () => {
-      let bitrate = parseInt(document.getElementById('bitrate').value, 10)
+      const bitrate = parseInt(document.getElementById('bitrate').value, 10)
       publisher.setRoomBitrate(bitrate).then((data) => {
         console.log('bitrate set to ' + bitrate, data)
       })
     })
 
     document.getElementById('start-rtp-button').addEventListener('click', () => {
-      let host = document.getElementById('rtp-host').value
-      let videoPort = parseInt(document.getElementById('rtp-video-port').value, 10)
-      let audioPort = parseInt(document.getElementById('rtp-audio-port').value, 10)
+      const host = document.getElementById('rtp-host').value
+      const videoPort = parseInt(document.getElementById('rtp-video-port').value, 10)
+      const audioPort = parseInt(document.getElementById('rtp-audio-port').value, 10)
       publisher.startRTPForward(host, videoPort, audioPort).then((data) => {
         console.log('RTP forwarded', data)
       })
@@ -66,13 +66,13 @@ janus.connect().then(() => {
       document.getElementById('janusRoomMemberId').value = publisher.janusRoomMemberId
       document.getElementById('start').href = `listener.html?janusRoomId=${publisher.janusRoomId}&janusRoomPrivateMemberId=${publisher.janusRoomPrivateMemberId}&janusRoomMemberId=${publisher.janusRoomMemberId}`
 
-      let peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
+      const peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
 
       peerConnection.onicecandidate = (event) => {
         if (!event.candidate || !event.candidate.candidate) {
           publisher.candidate({ completed: true })
         } else {
-          let candidate = {
+          const candidate = {
             candidate: event.candidate.candidate,
             sdpMid: event.candidate.sdpMid,
             sdpMLineIndex: event.candidate.sdpMLineIndex
@@ -91,13 +91,13 @@ janus.connect().then(() => {
 
           return peerConnection.setLocalDescription(offer).then(() => {
             console.log('setLocalDescription')
-            let jsep = { type: offer.type, sdp: offer.sdp }
+            const jsep = { type: offer.type, sdp: offer.sdp }
             publisher.configure(jsep).then((jsep) => {
               console.log('ANSWER', jsep)
               peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => {
                 console.log('remoteDescription set')
 
-                let videoElement = document.getElementById('video')
+                const videoElement = document.getElementById('video')
                 videoElement.srcObject = stream
                 videoElement.play()
               })

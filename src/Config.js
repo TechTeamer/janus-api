@@ -1,6 +1,6 @@
 class JanusConfig {
   constructor (config) {
-    let {
+    const {
       url,
       keepAliveIntervalMs,
       options
@@ -15,7 +15,7 @@ class JanusConfig {
 class JanusAdminConfig extends JanusConfig {
   constructor (config) {
     super(config)
-    let {
+    const {
       secret,
       sessionListIntervalMs
     } = config
@@ -27,7 +27,7 @@ class JanusAdminConfig extends JanusConfig {
 
 class JanusRoomConfig {
   constructor (config) {
-    let {
+    const {
       id,
       codec,
       record,

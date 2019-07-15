@@ -37,15 +37,15 @@ class EchoJanusPlugin extends JanusPlugin {
 
   consume (data) {
     if (data.type === 'message') {
-      let sendData = { jsep: data.message.jsep, body: this.janusEchoBody }
+      const sendData = { jsep: data.message.jsep, body: this.janusEchoBody }
       return this.transaction('message', sendData, 'event').then((ret) => {
-        let { json } = ret
+        const { json } = ret
         if (!json || !json.jsep) {
           this.logger.error('EchoJanusPlugin, no jsep in the transaction reply', ret)
           return
         }
 
-        let jsep = json.jsep
+        const jsep = json.jsep
         if (this.filterDirectCandidates && jsep.sdp) {
           jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
         }

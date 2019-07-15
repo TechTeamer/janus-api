@@ -21,7 +21,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
   }
 
   join (offerAudio = true, offerVideo = true) {
-    let join = {
+    const join = {
       request: 'join',
       room: this.janusRoomId,
       ptype: 'listener',
@@ -33,7 +33,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
 
     return new Promise((resolve, reject) => {
       this.transaction('message', { body: join }, 'event').then((param) => {
-        let { data, json } = param || {}
+        const { data, json } = param || {}
         if (!data || data.videoroom !== 'attached') {
           this.logger.error('VideoRoomListenerJanusPlugin join answer is not attached', data, json)
           throw new Error('VideoRoomListenerJanusPlugin join answer is not attached')
@@ -43,7 +43,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
           throw new Error('VideoRoomListenerJanusPlugin join answer does not contains jsep')
         }
 
-        let jsep = json.jsep
+        const jsep = json.jsep
         if (this.filterDirectCandidates && jsep.sdp) {
           jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
         }
@@ -58,16 +58,16 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
   }
 
   setAnswer (answer) {
-    let body = { request: 'start', room: this.janusRoomId }
+    const body = { request: 'start', room: this.janusRoomId }
 
     return new Promise((resolve, reject) => {
-      let jsep = answer
+      const jsep = answer
       if (this.filterDirectCandidates && jsep && jsep.sdp) {
         jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
       }
 
       this.transaction('message', { body, jsep }, 'event').then((param) => {
-        let { data, json } = param || {}
+        const { data, json } = param || {}
 
         if (!data || data.started !== 'ok') {
           this.logger.error('VideoRoomListenerJanusPlugin set answer is not ok', data, json)

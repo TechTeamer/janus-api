@@ -8,15 +8,15 @@ const config = new JanusConfig(common.janus)
 const VideoRoomListenerJanusPlugin = require('../../src/plugin/VideoRoomListenerJanusPlugin')
 const Janus = require('../../src/Janus')
 
-let janus = new Janus(config, console)
+const janus = new Janus(config, console)
 
-let params = (new URL(location.href)).searchParams
+const params = (new URL(location.href)).searchParams
 
 let janusRoomId
 let janusRoomPrivateMemberId
 let janusRoomMemberId
 
-let startButton = document.getElementById('start')
+const startButton = document.getElementById('start')
 startButton.onclick = connect
 
 if (params.get('janusRoomId') && params.get('janusRoomPrivateMemberId') && params.get('janusRoomMemberId')) {
@@ -34,19 +34,19 @@ function connect () {
   janus.connect().then(() => {
     console.log('Janus connected')
 
-    let listener = new VideoRoomListenerJanusPlugin(1, janusRoomId, janusRoomPrivateMemberId, janusRoomMemberId, console, false)
+    const listener = new VideoRoomListenerJanusPlugin(1, janusRoomId, janusRoomPrivateMemberId, janusRoomMemberId, console, false)
 
     return janus.addPlugin(listener).then(() => {
       console.log('VideoRoomListenerJanusPlugin added')
 
-      let peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
+      const peerConnection = new RTCPeerConnection(common.peerConnectionConfig)
 
       peerConnection.onicecandidate = (event) => {
         console.log('@onicecandidate', event)
         if (!event.candidate || !event.candidate.candidate) {
           listener.candidate({ completed: true })
         } else {
-          let candidate = {
+          const candidate = {
             candidate: event.candidate.candidate,
             sdpMid: event.candidate.sdpMid,
             sdpMLineIndex: event.candidate.sdpMLineIndex
@@ -58,7 +58,7 @@ function connect () {
       peerConnection.onaddstream = (mediaStreamEvent) => {
         console.log('@onaddstream', mediaStreamEvent)
 
-        let videoElement = document.getElementById('video')
+        const videoElement = document.getElementById('video')
         videoElement.srcObject = mediaStreamEvent.stream
         videoElement.play()
       }
@@ -75,7 +75,7 @@ function connect () {
       })
 
       listener.on('hangup', () => {
-        let videoElement = document.getElementById('video')
+        const videoElement = document.getElementById('video')
         videoElement.srcObject = null
 
         console.log('HANGUP')

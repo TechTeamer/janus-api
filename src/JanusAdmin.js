@@ -26,14 +26,14 @@ class JanusAdmin extends Janus {
 
   listHandles (sessionId) {
     return this.transaction('list_handles', {
-      'session_id': sessionId
+      session_id: sessionId
     }).then(r => r.handles)
   }
 
   handleInfo (sessionId, handleId) {
     return this.transaction('handle_info', {
-      'session_id': sessionId,
-      'handle_id': handleId
+      session_id: sessionId,
+      handle_id: handleId
     }).then(r => r.info)
   }
 }

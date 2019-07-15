@@ -34,7 +34,7 @@ document.getElementById('start').addEventListener('click', () => {
         if (!event.candidate || !event.candidate.candidate) {
           record.consume({ type: 'candidate', message: { completed: true } })
         } else {
-          let candidate = {
+          const candidate = {
             candidate: event.candidate.candidate,
             sdpMid: event.candidate.sdpMid,
             sdpMLineIndex: event.candidate.sdpMLineIndex
@@ -65,7 +65,7 @@ document.getElementById('start').addEventListener('click', () => {
 
           return peerConnection.setLocalDescription(offer).then(() => {
             console.log('setlocalDescription')
-            let jsep = { type: offer.type, sdp: offer.sdp }
+            const jsep = { type: offer.type, sdp: offer.sdp }
 
             return record.consume({ type: 'message', message: { jsep: jsep } })
           })

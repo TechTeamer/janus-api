@@ -1,3 +1,6 @@
+4.0.1:
+- fix for cleaning up transactions
+
 4.0.0:
 - added more function to SdpHelper
 - more error handling to Plugins
