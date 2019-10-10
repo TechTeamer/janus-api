@@ -4,3 +4,11 @@ node_js:
   - "8"
   - "10"
   - "12"
+
+addons:
+  sonarcloud:
+    organization: "TechTeamer_janus-api" # the key of the org you chose at step #3
+
+script:
+  - npm run test
+  - sonar-scanner
