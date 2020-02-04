@@ -89,7 +89,7 @@ class Janus {
     const request = plugin.getAttachPayload()
 
     return this.transaction('attach', request, 'success').then((json) => {
-      if (json['janus'] !== 'success') {
+      if (json.janus !== 'success') {
         this.logger.error('Cannot add plugin', json)
         plugin.error(json)
         throw new Error(json)
@@ -202,16 +202,16 @@ class Janus {
     }
 
     // this.logger.debug('JANUS GOT', json)
-    if (json['janus'] === 'timeout' && json['session_id'] !== this.sessionId) {
+    if (json.janus === 'timeout' && json.session_id !== this.sessionId) {
       this.logger.debug('GOT timeout from another websocket') // seems like a bug in janus timeout handler :)
       return
     }
 
-    if (json['janus'] === 'keepalive') { // Do nothing
+    if (json.janus === 'keepalive') { // Do nothing
       return
     }
 
-    if (json['janus'] === 'ack') { // Just an ack, we can probably ignore
+    if (json.janus === 'ack') { // Just an ack, we can probably ignore
       const transaction = this.getTransaction(json)
       if (transaction && transaction.resolve) {
         transaction.resolve(json)
@@ -219,19 +219,19 @@ class Janus {
       return
     }
 
-    if (json['janus'] === 'success') { // Success!
+    if (json.janus === 'success') { // Success!
       const transaction = this.getTransaction(json)
       if (!transaction) {
         return
       }
 
-      const pluginData = json['plugindata']
+      const pluginData = json.plugindata
       if (pluginData === undefined || pluginData === null) {
         transaction.resolve(json)
         return
       }
 
-      const sender = json['sender']
+      const sender = json.sender
       if (!sender) {
         transaction.resolve(json)
         this.logger.error('Missing sender for plugindata', json)
@@ -244,12 +244,12 @@ class Janus {
         return
       }
 
-      transaction.resolve({ data: pluginData['data'], json })
+      transaction.resolve({ data: pluginData.data, json })
       return
     }
 
-    if (json['janus'] === 'webrtcup') { // The PeerConnection with the gateway is up! Notify this
-      const sender = json['sender']
+    if (json.janus === 'webrtcup') { // The PeerConnection with the gateway is up! Notify this
+      const sender = json.sender
       if (!sender) {
         this.logger.warn('Missing sender...')
         return
@@ -263,8 +263,8 @@ class Janus {
       return
     }
 
-    if (json['janus'] === 'hangup') { // A plugin asked the core to hangup a PeerConnection on one of our handles
-      const sender = json['sender']
+    if (json.janus === 'hangup') { // A plugin asked the core to hangup a PeerConnection on one of our handles
+      const sender = json.sender
       if (!sender) {
         this.logger.warn('Missing sender...')
         return
@@ -274,13 +274,13 @@ class Janus {
         this.logger.error('This handle is not attached to this session', sender)
         return
       }
-      pluginHandle.webrtcState(false, json['reason'])
+      pluginHandle.webrtcState(false, json.reason)
       pluginHandle.hangup()
       return
     }
 
-    if (json['janus'] === 'detached') { // A plugin asked the core to detach one of our handles
-      const sender = json['sender']
+    if (json.janus === 'detached') { // A plugin asked the core to detach one of our handles
+      const sender = json.sender
       if (!sender) {
         this.logger.warn('Missing sender...')
         return
@@ -288,8 +288,8 @@ class Janus {
       return
     }
 
-    if (json['janus'] === 'media') { // Media started/stopped flowing
-      const sender = json['sender']
+    if (json.janus === 'media') { // Media started/stopped flowing
+      const sender = json.sender
       if (!sender) {
         this.logger.warn('Missing sender...')
         return
@@ -299,14 +299,14 @@ class Janus {
         this.logger.error('This handle is not attached to this session', sender)
         return
       }
-      pluginHandle.mediaState(json['type'], json['receiving'])
+      pluginHandle.mediaState(json.type, json.receiving)
       return
     }
 
-    if (json['janus'] === 'slowlink') { // Trouble uplink or downlink
+    if (json.janus === 'slowlink') { // Trouble uplink or downlink
       this.logger.debug('Got a slowlink event on session ' + this.sessionId)
       this.logger.debug(json)
-      const sender = json['sender']
+      const sender = json.sender
       if (!sender) {
         this.logger.warn('Missing sender...')
         return
@@ -316,11 +316,11 @@ class Janus {
         this.logger.error('This handle is not attached to this session', sender)
         return
       }
-      pluginHandle.slowLink(json['uplink'], json['nacks'])
+      pluginHandle.slowLink(json.uplink, json.nacks)
       return
     }
 
-    if (json['janus'] === 'error') { // Oops, something wrong happened
+    if (json.janus === 'error') { // Oops, something wrong happened
       if (json.error && json.error.code && !ignoredErrorCodes.includes(json.error.code)) {
         this.logger.error('Janus error response' + json)
       }
@@ -335,13 +335,13 @@ class Janus {
       return
     }
 
-    if (json['janus'] === 'event') {
-      const sender = json['sender']
+    if (json.janus === 'event') {
+      const sender = json.sender
       if (!sender) {
         this.logger.warn('Missing sender...')
         return
       }
-      const pluginData = json['plugindata']
+      const pluginData = json.plugindata
       if (pluginData === undefined || pluginData === null) {
         this.logger.error('Missing plugindata...')
         return
@@ -353,10 +353,10 @@ class Janus {
         return
       }
 
-      const data = pluginData['data']
+      const data = pluginData.data
       const transaction = this.getTransaction(json)
       if (transaction) {
-        if (data['error_code']) {
+        if (data.error_code) {
           transaction.reject({ data, json })
         } else {
           transaction.resolve({ data, json })
@@ -368,7 +368,7 @@ class Janus {
       return
     }
 
-    this.logger.warn('Unknown message/event ' + json['janus'] + ' on session ' + this.sessionId)
+    this.logger.warn('Unknown message/event ' + json.janus + ' on session ' + this.sessionId)
     this.logger.debug(json)
   }
 
@@ -399,8 +399,8 @@ class Janus {
   }
 
   getTransaction (json, ignoreReplyType = false) {
-    const type = json['janus']
-    const transactionId = json['transaction']
+    const type = json.janus
+    const transactionId = json.transaction
     if (
       transactionId &&
       Object.prototype.hasOwnProperty.call(this.transactions, transactionId) &&

@@ -82,15 +82,15 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
           rtpSdp +=
             `m=video ${videoPortNumber} RTP/AVP ${codec.payloadType}\n` +
             `a=rtpmap:${codec.payloadType} ${codec.name}/${codec.clockRate}\n` +
-            `a=fmtp:11 packetization-mode=1\n` +
-            `a=rtcp-mux\n`
+            'a=fmtp:11 packetization-mode=1\n' +
+            'a=rtcp-mux\n'
         }
         if (mid === 'audio' && audioPortNumber) {
           rtpSdp +=
             `m=audio ${audioPortNumber} RTP/AVP ${codec.payloadType}\n` +
             `a=rtpmap:${codec.payloadType} ${codec.name}/${codec.clockRate}\n` +
-            `a=fmtp:11 packetization-mode=1\n` +
-            `a=rtcp-mux\n`
+            'a=fmtp:11 packetization-mode=1\n' +
+            'a=rtcp-mux\n'
         }
       })
 
@@ -179,7 +179,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
         resolve(data.publishers)
       }).catch((err) => {
-        if (err && err['error_code'] === 426) { // JANUS_VIDEOROOM_ERROR_NO_SUCH_ROOM = 426
+        if (err && err.error_code === 426) { // JANUS_VIDEOROOM_ERROR_NO_SUCH_ROOM = 426
           this.createRoom().then(resolve).catch(reject)
         } else {
           this.logger.error('VideoRoomPublisherJanusPlugin, unknown error connecting to room', err)

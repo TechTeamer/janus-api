@@ -1,6 +1,6 @@
 {
   "name": "@techteamer/janus-api",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "Janus WebRTC-Gateway API",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build-test": "node ./test/buildtest.js"
   },
   "engines": {
-    "node": ">=8.10"
+    "node": ">=10.13"
   },
   "repository": {
     "type": "git",
@@ -27,17 +27,17 @@
   "dependencies": {
     "sdp": "^2.5.0",
     "uuid": "^3.1.0",
-    "ws": "^6.1.2"
+    "ws": "^7.2.1"
   },
   "devDependencies": {
     "browserify": "^16.0.0",
     "eslint": "^6.0.1",
-    "eslint-config-standard": "^13.0.1",
+    "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
-    "http-server": "^0.11.1",
-    "webrtc-adapter": "^6.4.6"
+    "http-server": "^0.12.1",
+    "webrtc-adapter": "^7.5.0"
   }
 }

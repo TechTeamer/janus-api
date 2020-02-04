@@ -1,3 +1,7 @@
+6.0.0:
+- drop support for node v8
+- updated dependencies
+
 5.0.0:
 - drop support for node v6
 
