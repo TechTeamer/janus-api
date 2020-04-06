@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/TechTeamer/janus-api#readme",
   "dependencies": {
+    "isomorphic-ws": "^4.0.1",
     "sdp": "^2.5.0",
     "uuid": "^3.1.0",
     "ws": "^7.2.1"

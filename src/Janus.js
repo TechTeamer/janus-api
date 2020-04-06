@@ -1,4 +1,4 @@
-const WebSocket = require('./WebSocket')
+const WebSocket = require('isomorphic-ws')
 const JanusPlugin = require('./JanusPlugin')
 const uuid = require('uuid/v4')
 
@@ -420,7 +420,9 @@ class Janus {
 
   _cleanupWebSocket () {
     if (this.ws) {
-      this.ws.removeAllListeners()
+      if (this.ws.removeAllListeners) {
+        this.ws.removeAllListeners()
+      }
       if (this.ws.readyState === WebSocket.OPEN) {
         this.ws.close()
       }
