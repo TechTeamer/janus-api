@@ -95,6 +95,23 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
       this.logger.error('VideoRoomListenerJanusPlugin, destroyPlugin error in hangup', err)
     })
   }
+
+  onmessage (data, json) {
+    const { videoroom } = data || {}
+
+    if (!data || !videoroom) {
+      this.logger.error('VideoRoomListenerJanusPlugin got unknown message', json)
+      return
+    }
+
+    if (videoroom === 'slow_link') {
+      this.logger.debug('VideoRoomListenerJanusPlugin got slow_link', data)
+      this.slowLink()
+      return
+    }
+
+    this.logger.error('VideoRoomListenerJanusPlugin unhandled message:', videoroom, json)
+  }
 }
 
 module.exports = VideoRoomListenerJanusPlugin

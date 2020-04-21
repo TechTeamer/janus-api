@@ -267,26 +267,40 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     // TODO data.videoroom === 'destroyed' handling
     // TODO unpublished === 'ok' handling : we are unpublished
 
-    const { videoroom, room, unpublished, leaving, publishers } = data
+    const { videoroom } = data || {}
 
-    if (!data || !videoroom || videoroom !== 'event') {
+    if (!data || !videoroom) {
       this.logger.error('VideoRoomPublisherJanusPlugin got unknown message', json)
       return
     }
-    if (room !== this.janusRoomId) {
-      this.logger.error('VideoRoomPublisherJanusPlugin got unknown roomId', this.janusRoomId, json)
+
+    if (videoroom === 'slow_link') {
+      this.logger.debug('VideoRoomPublisherJanusPlugin got slow_link', data)
+      this.slowLink()
       return
     }
 
-    if (unpublished) {
-      this.emit('remoteMemberUnpublished', unpublished)
-    } else if (leaving) {
-      this.emit('remoteMemberLeaving', leaving)
-    } else if (Array.isArray(publishers)) {
-      this.emit('publishersUpdated', publishers)
-    } else {
-      this.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
+    if (videoroom === 'event') {
+      const { room, unpublished, leaving, publishers } = data
+      if (room !== this.janusRoomId) {
+        this.logger.error('VideoRoomPublisherJanusPlugin got unknown roomId', this.janusRoomId, json)
+        return
+      }
+
+      if (unpublished) {
+        this.emit('remoteMemberUnpublished', unpublished)
+      } else if (leaving) {
+        this.emit('remoteMemberLeaving', leaving)
+      } else if (Array.isArray(publishers)) {
+        this.emit('publishersUpdated', publishers)
+      } else {
+        this.logger.error('VideoRoomPublisherJanusPlugin got unknown event', json)
+      }
+
+      return
     }
+
+    this.logger.error('VideoRoomPublisherJanusPlugin unhandled message:', videoroom, json)
   }
 }
 
