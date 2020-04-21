@@ -1,3 +1,7 @@
+6.1.0:
+- use isomorphic-ws for websocket abstraction
+- handle slow_link event in videoroom
+
 6.0.0:
 - drop support for node v8
 - updated dependencies
