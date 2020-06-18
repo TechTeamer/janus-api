@@ -21,6 +21,7 @@ pack('./test/recordplay/recordplay.js', './test/recordplay/recordplay.bundle.js'
 pack('./test/videoroom/publisher.js', './test/videoroom/publisher.bundle.js')
 pack('./test/videoroom/listener.js', './test/videoroom/listener.bundle.js')
 pack('./test/streaming/streaming.js', './test/streaming/streaming.bundle.js')
+pack('./test/videocall/videocall.js', './test/videocall/videocall.bundle.js')
 
 httpServer.createServer({
   showDir: true,
