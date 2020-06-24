@@ -1,6 +1,6 @@
 const WebSocket = require('isomorphic-ws')
 const JanusPlugin = require('./JanusPlugin')
-const uuid = require('uuid/v4')
+const { v4: uuid } = require('uuid')
 
 const ignoredErrorCodes = [
   458, // JANUS_ERROR_SESSION_NOT_FOUND

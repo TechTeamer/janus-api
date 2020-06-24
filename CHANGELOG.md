@@ -1,3 +1,7 @@
+6.2.0:
+- add VideoCall plugin
+- updated dependencies
+
 6.1.0:
 - use isomorphic-ws for websocket abstraction
 - handle slow_link event in videoroom
