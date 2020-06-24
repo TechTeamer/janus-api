@@ -179,12 +179,12 @@ class Janus {
       }
 
       this.transaction('detach', { plugin: plugin.pluginName, handle_id: plugin.janusHandleId }, 'success', 5000).then(() => {
-        delete this.pluginHandles[plugin.pluginName]
+        delete this.pluginHandles[plugin.janusHandleId]
         plugin.detach()
 
         resolve()
       }).catch((err) => {
-        delete this.pluginHandles[plugin.pluginName]
+        delete this.pluginHandles[plugin.janusHandleId]
         plugin.detach()
 
         reject(err)
