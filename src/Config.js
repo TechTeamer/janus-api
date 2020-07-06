@@ -163,7 +163,7 @@ class JanusRoomConfig {
       body.audio_level_average = this.audioLevelAverage
     }
 
-    if (this.videoOrientExt) {
+    if (this.videoOrientExt !== undefined) { // default: true
       body.videoorient_ext = this.videoOrientExt
     }
 
