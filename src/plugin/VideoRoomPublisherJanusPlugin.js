@@ -190,22 +190,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   createRoom () {
-    const body = {
-      request: 'create',
-      description: '' + this.config.id,
-      record: this.config.record,
-      videocodec: this.config.codec,
-      rec_dir: this.config.recordDirectory,
-      publishers: this.config.publishers,
-      videoorient_ext: this.config.videoOrientExt
-    }
-
-    if (this.config.bitrate) {
-      body.bitrate = this.config.bitrate
-    }
-    if (this.config.firSeconds) {
-      body.fir_freq = this.config.firSeconds
-    }
+    const body = Object.assign({ request: 'create' }, this.config.toJanusConfig())
 
     return this.transaction('message', { body }, 'success').then((param) => {
       const { data } = param || {}
