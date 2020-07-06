@@ -1,3 +1,6 @@
+6.2.2:
+- fix for videoorient_ext
+
 6.2.1:
 - update videoroom parameters
 
