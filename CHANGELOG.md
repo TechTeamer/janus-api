@@ -1,3 +1,6 @@
+6.2.1:
+- update videoroom parameters
+
 6.2.0:
 - add VideoCall plugin
 - updated dependencies
