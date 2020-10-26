@@ -68,7 +68,7 @@ class Janus {
           replyType: 'success'
         }
 
-        this.ws.send(JSON.stringify(request))
+        this.websocketSend(JSON.stringify(request))
       })
 
       this.ws.addEventListener('message', (event) => { this.onMessage(event) })
@@ -126,7 +126,7 @@ class Janus {
       })
 
       this.transactions[request.transaction] = { resolve, reject, replyType, request }
-      this.ws.send(JSON.stringify(request))
+      this.websocketSend(JSON.stringify(request))
     })
   }
 
@@ -144,7 +144,7 @@ class Janus {
       })
 
       this.logger.debug('Janus sending', request)
-      this.ws.send(JSON.stringify(request), {}, (err) => {
+      this.websocketSend(JSON.stringify(request), {}, (err) => {
         if (err) {
           reject(err)
         } else {
@@ -152,6 +152,26 @@ class Janus {
         }
       })
     })
+  }
+
+  /**
+   * Send a data message.
+   *
+   * @param {*} data The message to send
+   * @param {Object} options Options object
+   * @param {Function} cb Callback which is executed when data is written out
+   * @public
+   */
+  websocketSend(data, options, cb) {
+    try {
+      this.ws.send(data, options, cb)
+    }
+    catch(err) {
+      if (cb) {
+        cb(err)
+      }
+      this.logger.error('Websocket send method exception', err)
+    }
   }
 
   destroy () {
