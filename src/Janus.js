@@ -162,11 +162,10 @@ class Janus {
    * @param {Function} cb Callback which is executed when data is written out
    * @public
    */
-  websocketSend(data, options, cb) {
+  websocketSend (data, options, cb) {
     try {
       this.ws.send(data, options, cb)
-    }
-    catch(err) {
+    } catch (err) {
       if (cb) {
         cb(err)
       }
