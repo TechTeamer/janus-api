@@ -1,3 +1,6 @@
+6.2.3:
+- handling exceptions coming from websocket
+
 6.2.2:
 - fix for videoorient_ext
 
