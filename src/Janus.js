@@ -168,7 +168,7 @@ class Janus {
     }
     catch(err) {
       if (cb) {
-        cb.call(this, err)
+        cb(err)
       }
       this.logger.error('Websocket send method exception', err)
     }
