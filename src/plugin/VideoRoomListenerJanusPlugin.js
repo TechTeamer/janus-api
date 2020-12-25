@@ -24,7 +24,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
     const join = {
       request: 'join',
       room: this.janusRoomId,
-      ptype: 'listener',
+      ptype: 'subscriber',
       feed: this.janusRemoteFeedId,
       private_id: this.janusRoomPrivateMemberId,
       offer_video: offerVideo,
