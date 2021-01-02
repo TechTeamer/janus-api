@@ -1,3 +1,6 @@
+6.2.4:
+- changed deprecated ptype in VideoRoomPublisher from 'listener' to 'subscriber'
+
 6.2.3:
 - handling exceptions coming from websocket
 
