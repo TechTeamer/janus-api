@@ -83,7 +83,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
 
   candidate (candidate) {
     if (this.filterDirectCandidates && candidate.candidate && this.sdpHelper.isDirectCandidate(candidate.candidate)) {
-      return
+      return Promise.reject(new Error ('Filter direct candidate is active and this is direct candidate'))
     }
 
     return this.transaction('trickle', { candidate })
