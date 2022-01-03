@@ -1,3 +1,6 @@
+6.2.5:
+- dependency upgrade
+
 6.2.4:
 - changed deprecated ptype in VideoRoomPublisher from 'listener' to 'subscriber'
 
