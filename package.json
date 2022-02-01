@@ -32,13 +32,13 @@
   },
   "devDependencies": {
     "browserify": "^17.0.0",
-    "eslint": "^8.6.0",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.8.0",
+    "eslint": "^8.8.0",
+    "eslint-config-standard": "^17.0.0-1",
+    "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-standard": "^5.0.0",
-    "http-server": "^14.0.0",
-    "webrtc-adapter": "^8.1.0"
+    "http-server": "^14.1.0",
+    "webrtc-adapter": "^8.1.1"
   }
 }
