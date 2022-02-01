@@ -3,18 +3,19 @@ dist: focal
 language: node_js
 
 node_js:
-  - "12"
-  - "14"
   - "16"
+  - "14"
+  - "12"
 
 git:
   depth: false
 
 cache: false
 
-services:
-  - docker
-
-script:
-  - npm run test
-  - docker run --rm -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_LOGIN=$SONAR_TOKEN -v "/home/travis/build/TechTeamer/janus-api:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.branch.name=$TRAVIS_BRANCH
+jobs:
+  include:
+    - stage: ci
+      services: docker
+      install: skip
+      script:
+        - docker run --rm -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_LOGIN=$SONAR_TOKEN -v "/home/travis/build/TechTeamer/janus-api:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.branch.name=$TRAVIS_BRANCH
