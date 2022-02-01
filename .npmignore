@@ -4,3 +4,4 @@ yarn.lock
 .eslintignore
 .travis.yml
 test
+sonar-project.properties
