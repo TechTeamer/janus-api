@@ -10,7 +10,7 @@ node_js:
 git:
   depth: false
 
-cache: false
+cache: yarn
 
 jobs:
   include:
