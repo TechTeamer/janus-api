@@ -285,6 +285,16 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       return
     }
 
+    if (videoroom === 'talking') {
+      this.emit('talking')
+      return
+    }
+
+    if (videoroom === 'stopped-talking') {
+      this.emit('stopped-talking')
+      return
+    }
+
     this.logger.error('VideoRoomPublisherJanusPlugin unhandled message:', videoroom, json)
   }
 }
