@@ -291,7 +291,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
     }
 
     if (videoroom === 'stopped-talking') {
-      this.emit('stopped-talking')
+      this.emit('stoppedTalking')
       return
     }
 
