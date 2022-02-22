@@ -1,3 +1,6 @@
+6.3.0:
+- added talking events to videoroom plugin
+
 6.2.5:
 - dependency upgrade
 
