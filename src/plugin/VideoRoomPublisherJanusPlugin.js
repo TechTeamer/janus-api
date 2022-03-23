@@ -297,6 +297,17 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     this.logger.error('VideoRoomPublisherJanusPlugin unhandled message:', videoroom, json)
   }
+
+  listParticipants () {
+    return this.transaction('message', { body: { request: 'listparticipants', room: this.janusRoomId } }, 'success').then((param) => {
+      const { data } = param || {}
+      if (!data || !Array.isArray(data.participants)) {
+        this.logger.error('VideoRoomPublisherJanusPlugin, could not list participants', data)
+        throw new Error('VideoRoomPublisherJanusPlugin, could not list participants')
+      }
+      return data.participants
+    })
+  }
 }
 
 module.exports = VideoRoomPublisherJanusPlugin
