@@ -297,6 +297,13 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
 
     this.logger.error('VideoRoomPublisherJanusPlugin unhandled message:', videoroom, json)
   }
+
+  startRecording () {
+    return this.transaction('message', { body: { request: 'configure', record: true } }, 'event').catch((err) => {
+      this.logger.error('VideoRoomPublisherJanusPlugin, cannot start recording', err)
+      throw err
+    })
+  }
 }
 
 module.exports = VideoRoomPublisherJanusPlugin
