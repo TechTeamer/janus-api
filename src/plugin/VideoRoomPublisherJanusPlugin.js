@@ -285,6 +285,11 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       return
     }
 
+    if(videoroom === 'keyframe') {
+      this.emit('keyframe', data)
+      return
+    }
+
     if (videoroom === 'talking') {
       this.emit('talking')
       return
