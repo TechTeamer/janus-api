@@ -67,7 +67,7 @@ document.getElementById('start').addEventListener('click', () => {
             console.log('setlocalDescription')
             const jsep = { type: offer.type, sdp: offer.sdp }
 
-            return record.consume({ type: 'message', message: { jsep: jsep } })
+            return record.consume({ type: 'message', message: { jsep } })
           })
         })
       })

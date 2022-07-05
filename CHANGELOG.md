@@ -1,3 +1,6 @@
+6.4.0:
+- added 'keyframe' event to videoroom
+
 6.3.0:
 - added talking events to videoroom plugin
 

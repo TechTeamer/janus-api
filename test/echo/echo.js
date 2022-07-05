@@ -62,7 +62,7 @@ janus.connect().then(() => {
             console.log('setlocalDescription')
             const jsep = { type: offer.type, sdp: offer.sdp }
 
-            echo.consume({ type: 'message', message: { jsep: jsep } })
+            echo.consume({ type: 'message', message: { jsep } })
           })
         })
       })

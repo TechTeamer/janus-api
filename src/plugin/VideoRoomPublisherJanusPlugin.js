@@ -37,7 +37,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       request: 'rtp_forward',
       room: this.janusRoomId,
       publisher_id: this.janusRoomMemberId,
-      host: host
+      host
     }
 
     if (videoPortNumber) {
@@ -285,7 +285,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
       return
     }
 
-    if(videoroom === 'keyframe') {
+    if (videoroom === 'keyframe') {
       this.emit('keyframe', data)
       return
     }
