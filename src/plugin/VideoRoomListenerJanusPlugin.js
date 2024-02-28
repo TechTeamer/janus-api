@@ -110,6 +110,11 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
       return
     }
 
+    if(videoroom === 'updated') {
+      this.emit('updated', data)
+      return
+    }
+
     this.logger.error('VideoRoomListenerJanusPlugin unhandled message:', videoroom, json)
   }
 }
