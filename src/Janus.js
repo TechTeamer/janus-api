@@ -1,6 +1,6 @@
-const WebSocket = require('isomorphic-ws')
-const JanusPlugin = require('./JanusPlugin')
-const { v4: uuid } = require('uuid')
+import WebSocket from 'isomorphic-ws'
+import JanusPlugin from './JanusPlugin.js'
+import { v4 as uuid } from 'uuid'
 
 const ignoredErrorCodes = [
   458, // JANUS_ERROR_SESSION_NOT_FOUND
@@ -36,7 +36,9 @@ class Janus {
         reject(err)
       })
 
-      this.ws.addEventListener('close', () => { this.cleanup() })
+      this.ws.addEventListener('close', () => {
+        this.cleanup()
+      })
 
       this.ws.addEventListener('open', () => {
         if (!this.sendCreate) {
@@ -71,8 +73,12 @@ class Janus {
         this.websocketSend(JSON.stringify(request))
       })
 
-      this.ws.addEventListener('message', (event) => { this.onMessage(event) })
-      this.ws.addEventListener('close', () => { this.onClose() })
+      this.ws.addEventListener('message', (event) => {
+        this.onMessage(event)
+      })
+      this.ws.addEventListener('close', () => {
+        this.onClose()
+      })
     })
   }
 
@@ -155,13 +161,13 @@ class Janus {
   }
 
   /**
-   * Send a data message.
-   *
-   * @param {*} data The message to send
-   * @param {Object} options Options object
-   * @param {Function} cb Callback which is executed when data is written out
-   * @public
-   */
+     * Send a data message.
+     *
+     * @param {*} data The message to send
+     * @param {Object} options Options object
+     * @param {Function} cb Callback which is executed when data is written out
+     * @public
+     */
   websocketSend (data, options, cb) {
     try {
       this.ws.send(data, options, cb)
@@ -406,11 +412,15 @@ class Janus {
     }
 
     if (isScheduled) {
-      setTimeout(() => { this.keepAlive() }, this.config.keepAliveIntervalMs)
+      setTimeout(() => {
+        this.keepAlive()
+      }, this.config.keepAliveIntervalMs)
     } else {
       // logger.debug('Sending Janus keepalive')
       this.transaction('keepalive').then(() => {
-        setTimeout(() => { this.keepAlive() }, this.config.keepAliveIntervalMs)
+        setTimeout(() => {
+          this.keepAlive()
+        }, this.config.keepAliveIntervalMs)
       }).catch((err) => {
         this.logger.warn('Janus keepalive error', err)
       })
@@ -420,11 +430,9 @@ class Janus {
   getTransaction (json, ignoreReplyType = false) {
     const type = json.janus
     const transactionId = json.transaction
-    if (
-      transactionId &&
-      Object.prototype.hasOwnProperty.call(this.transactions, transactionId) &&
-      (ignoreReplyType || this.transactions[transactionId].replyType === type)
-    ) {
+    if (transactionId &&
+            Object.prototype.hasOwnProperty.call(this.transactions, transactionId) &&
+            (ignoreReplyType || this.transactions[transactionId].replyType === type)) {
       const ret = this.transactions[transactionId]
       delete this.transactions[transactionId]
       return ret
@@ -469,4 +477,4 @@ class Janus {
   }
 }
 
-module.exports = Janus
+export default Janus

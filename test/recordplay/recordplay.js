@@ -1,9 +1,9 @@
-/* eslint-disable no-console, no-undef */
-require('webrtc-adapter')
-const common = require('../common')
+/* eslint-disable no-console, no-undef, no-unused-vars */
 
-const RecordPlayJanusPlugin = require('../../src/plugin/RecordPlayJanusPlugin')
-const Janus = require('../../src/Janus')
+import 'webrtc-adapter'
+import common from '../common.js'
+import RecordPlayJanusPlugin from '../../src/plugin/RecordPlayJanusPlugin.js'
+import Janus from '../../src/Janus.js'
 
 let janus = null
 /** @var RecordPlayJanusPlugin */

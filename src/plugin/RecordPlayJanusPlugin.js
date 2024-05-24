@@ -1,5 +1,5 @@
-const JanusPlugin = require('../JanusPlugin')
-const SdpHelper = require('../SdpHelper')
+import JanusPlugin from '../JanusPlugin.js'
+import SdpHelper from '../SdpHelper.js'
 
 class RecordPlayJanusPlugin extends JanusPlugin {
   constructor (logger, filterDirectCandidates = false) {
@@ -66,4 +66,4 @@ class RecordPlayJanusPlugin extends JanusPlugin {
   }
 }
 
-module.exports = RecordPlayJanusPlugin
+export default RecordPlayJanusPlugin

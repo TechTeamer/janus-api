@@ -1,19 +1,13 @@
-const browserify = require('browserify')
-const httpServer = require('http-server')
-const fs = require('fs')
-
+import esbuild from 'esbuild'
+import * as httpServer from 'http-server'
 const pack = (input, output) => {
-  browserify(input, { debug: true })
-    .exclude(['ws'])
-    .bundle((err, buf) => {
-      if (err) {
-        // eslint-disable-next-line no-console
-        console.error(err)
-        return
-      }
-
-      fs.writeFileSync(output, buf)
-    })
+  esbuild.build({
+    entryPoints: [input],
+    bundle: true,
+    outfile: output
+  }).catch(err => {
+    console.log(err)
+  })
 }
 
 pack('./test/echo/echo.js', './test/echo/echo.bundle.js')

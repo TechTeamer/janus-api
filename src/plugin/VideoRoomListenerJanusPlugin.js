@@ -1,5 +1,5 @@
-const JanusPlugin = require('../JanusPlugin')
-const SdpHelper = require('../SdpHelper')
+import JanusPlugin from '../JanusPlugin.js'
+import SdpHelper from '../SdpHelper.js'
 
 class VideoRoomListenerJanusPlugin extends JanusPlugin {
   constructor (roomId, janusRoomId, roomMemberPrivateId, remoteFeedId, logger, filterDirectCandidates = false) {
@@ -110,7 +110,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
       return
     }
 
-    if(videoroom === 'updated') {
+    if (videoroom === 'updated') {
       this.emit('updated', data)
       return
     }
@@ -119,4 +119,4 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
   }
 }
 
-module.exports = VideoRoomListenerJanusPlugin
+export default VideoRoomListenerJanusPlugin

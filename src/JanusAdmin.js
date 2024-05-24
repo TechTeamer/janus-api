@@ -1,11 +1,11 @@
-const Janus = require('./Janus')
+import Janus from './Janus.js'
 
 class JanusAdmin extends Janus {
   /**
-   *
-   * @param config
-   * @param logger
-   */
+     *
+     * @param config
+     * @param logger
+     */
   constructor (config, logger) {
     super(config, logger)
     this.config = config
@@ -38,4 +38,4 @@ class JanusAdmin extends Janus {
   }
 }
 
-module.exports = JanusAdmin
+export default JanusAdmin

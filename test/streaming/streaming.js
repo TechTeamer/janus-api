@@ -1,12 +1,13 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
 
-const adapter = require('webrtc-adapter')
-const { JanusConfig } = require('../../src/Config')
-const common = require('../common')
-const config = new JanusConfig(common.janus)
+import 'webrtc-adapter'
+import { JanusConfig } from '../../src/Config.js'
+import common from '../common.js'
 
-const StreamingJanusPlugin = require('../../src/plugin/StreamingJanusPlugin')
-const Janus = require('../../src/Janus')
+import StreamingJanusPlugin from '../../src/plugin/StreamingJanusPlugin.js'
+import Janus from '../../src/Janus.js'
+
+const config = new JanusConfig(common.janus)
 
 const listButton = document.getElementById('listButton')
 const createButton = document.getElementById('createButton')

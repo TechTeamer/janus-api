@@ -1,5 +1,5 @@
-const JanusPlugin = require('../JanusPlugin')
-const SdpHelper = require('../SdpHelper')
+import JanusPlugin from '../JanusPlugin.js'
+import SdpHelper from '../SdpHelper.js'
 
 class VideoCallPlugin extends JanusPlugin {
   constructor (display, logger, filterDirectCandidates = false) {
@@ -101,4 +101,4 @@ class VideoCallPlugin extends JanusPlugin {
   }
 }
 
-module.exports = VideoCallPlugin
+export default VideoCallPlugin

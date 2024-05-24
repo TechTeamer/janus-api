@@ -1,11 +1,10 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
 
-const adapter = require('webrtc-adapter')
-const common = require('../common')
+import 'webrtc-adapter'
+import common from '../common.js'
 
-const EchoJanusPlugin = require('../../src/plugin/EchoJanusPlugin')
-const Janus = require('../../src/Janus')
-
+import EchoJanusPlugin from '../../src/plugin/EchoJanusPlugin.js'
+import Janus from '../../src/Janus.js'
 const janus = new Janus(common.janus, console)
 
 janus.connect().then(() => {
