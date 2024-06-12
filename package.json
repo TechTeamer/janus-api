@@ -16,7 +16,7 @@
     "build": "rm -fr dist/* && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && ./fixup.sh"
   },
   "engines": {
-    "node": ">=10.13"
+    "node": ">=18"
   },
   "repository": {
     "type": "git",
