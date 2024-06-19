@@ -1,5 +1,5 @@
-const JanusPlugin = require('../JanusPlugin')
-const SdpHelper = require('../SdpHelper')
+import JanusPlugin from '../JanusPlugin.js'
+import SdpHelper from '../SdpHelper.js'
 
 class EchoJanusPlugin extends JanusPlugin {
   constructor (logger, filterDirectCandidates = false) {
@@ -70,4 +70,4 @@ class EchoJanusPlugin extends JanusPlugin {
   }
 }
 
-module.exports = EchoJanusPlugin
+export default EchoJanusPlugin

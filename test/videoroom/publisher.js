@@ -1,9 +1,10 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
-const adapter = require('webrtc-adapter')
-const { JanusConfig, JanusRoomConfig } = require('../../src/Config')
-const common = require('../common')
+import 'webrtc-adapter'
+import { JanusConfig, JanusRoomConfig } from '../../src/Config.js'
+import common from '../common.js'
+import VideoRoomPublisherJanusPlugin from '../../src/plugin/VideoRoomPublisherJanusPlugin.js'
+import Janus from '../../src/Janus.js'
 const janusConfig = new JanusConfig(common.janus)
-
 const roomConfig = new JanusRoomConfig({
   id: 1,
   codec: 'vp8,vp9,h264',
@@ -14,10 +15,6 @@ const roomConfig = new JanusRoomConfig({
   publishers: common.janus.publishers,
   recordDirectory: common.janus.recordDirectory + '1/' // roomId
 })
-
-const VideoRoomPublisherJanusPlugin = require('../../src/plugin/VideoRoomPublisherJanusPlugin')
-const Janus = require('../../src/Janus')
-
 const janus = new Janus(janusConfig, console)
 
 janus.connect().then(() => {
@@ -94,9 +91,8 @@ janus.connect().then(() => {
             const jsep = { type: offer.type, sdp: offer.sdp }
             publisher.configure(jsep).then((jsep) => {
               console.log('ANSWER', jsep)
-              peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => {
+              peerConnection.setRemoteDescription(jsep).then(() => {
                 console.log('remoteDescription set')
-
                 const videoElement = document.getElementById('video')
                 videoElement.srcObject = stream
                 videoElement.play()

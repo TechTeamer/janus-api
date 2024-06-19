@@ -1,4 +1,4 @@
-const SDPUtils = require('sdp')
+import SDPUtils from 'sdp'
 
 class SdpHelper {
   constructor (logger) {
@@ -6,9 +6,9 @@ class SdpHelper {
   }
 
   /**
-   * @param sdp string
-   * @param allowedProfiles array[]|string|Regexp
-   */
+     * @param sdp string
+     * @param allowedProfiles array[]|string|Regexp
+     */
   filterH264Profiles (sdp, allowedProfiles) {
     const sections = SDPUtils.splitSections(sdp)
 
@@ -101,4 +101,4 @@ class SdpHelper {
   }
 }
 
-module.exports = SdpHelper
+export default SdpHelper

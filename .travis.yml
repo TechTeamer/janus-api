@@ -3,15 +3,23 @@ dist: focal
 language: node_js
 
 node_js:
-  - "16"
+  - "20"
+  - "22"
 
 git:
   depth: false
 
-jobs:
-  include:
-    - stage: ci
-      services: docker
-      install: skip
-      script:
-        - docker run --rm -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_LOGIN=$SONAR_TOKEN -v "/home/travis/build/TechTeamer/janus-api:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.branch.name=$TRAVIS_BRANCH
+before_install:
+  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.22.22
+
+#jobs:
+#  include:
+#    - stage: ci
+#      if: branch =~ /^(master)$/
+#      branches:
+#        only:
+#          - master
+#      services: docker
+#      install: skip
+#      script:
+#        - docker run --rm -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_LOGIN=$SONAR_TOKEN -v "/home/travis/build/TechTeamer/janus-api:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.branch.name=$TRAVIS_BRANCH

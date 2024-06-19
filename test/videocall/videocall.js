@@ -1,10 +1,12 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
-const { JanusConfig } = require('../../src/Config')
-const common = require('../common')
-const janusConfig = new JanusConfig(common.janus)
 
-const VideoCallPlugin = require('../../src/plugin/VideoCallPlugin')
-const Janus = require('../../src/Janus')
+import { JanusConfig } from '../../src/Config.js'
+import common from '../common.js'
+
+import VideoCallPlugin from '../../src/plugin/VideoCallPlugin.js'
+import Janus from '../../src/Janus.js'
+
+const janusConfig = new JanusConfig(common.janus)
 
 const janus = new Janus(janusConfig, console)
 
@@ -74,7 +76,7 @@ janus.connect().then(() => {
         })
 
         videocall.on('accepted', (username, jsep) => {
-          peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => {})
+          peerConnection.setRemoteDescription(new RTCSessionDescription(jsep)).then(() => undefined)
         })
 
         peerConnection.onaddstream = mediaStreamEvent => {

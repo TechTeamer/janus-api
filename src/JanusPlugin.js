@@ -1,5 +1,5 @@
-const { v4: uuid } = require('uuid')
-const EventEmitter = require('events')
+import { v4 as uuid } from 'uuid'
+import EventEmitter from 'events'
 
 class JanusPlugin extends EventEmitter {
   constructor (logger) {
@@ -73,4 +73,4 @@ class JanusPlugin extends EventEmitter {
   }
 }
 
-module.exports = JanusPlugin
+export default JanusPlugin

@@ -1,10 +1,6 @@
 class JanusConfig {
   constructor (config) {
-    const {
-      url,
-      keepAliveIntervalMs,
-      options
-    } = config
+    const { url, keepAliveIntervalMs, options } = config
 
     this.url = url
     this.keepAliveIntervalMs = keepAliveIntervalMs
@@ -15,10 +11,7 @@ class JanusConfig {
 class JanusAdminConfig extends JanusConfig {
   constructor (config) {
     super(config)
-    const {
-      secret,
-      sessionListIntervalMs
-    } = config
+    const { secret, sessionListIntervalMs } = config
 
     this.secret = secret
     this.sessionListIntervalMs = sessionListIntervalMs
@@ -27,35 +20,7 @@ class JanusAdminConfig extends JanusConfig {
 
 class JanusRoomConfig {
   constructor (config) {
-    const {
-      id,
-      codec,
-      record,
-      videoOrientExt,
-      bitrate,
-      bitrateCap,
-      firSeconds,
-      publishers,
-      recordDirectory,
-      isPrivate,
-      secret,
-      pin,
-      requirePvtid,
-      audioCodec,
-      vp9Profile,
-      h264Profile,
-      opusFec,
-      videoSvc,
-      audiolevelExt,
-      audiolevelEvent,
-      audioActivePackets,
-      audioLevelAverage,
-      playoutDelayExt,
-      transportWideCcExt,
-      lockRecord,
-      notifyJoining,
-      requireE2ee
-    } = config
+    const { id, codec, record, videoOrientExt, bitrate, bitrateCap, firSeconds, publishers, recordDirectory, isPrivate, secret, pin, requirePvtid, audioCodec, vp9Profile, h264Profile, opusFec, videoSvc, audiolevelExt, audiolevelEvent, audioActivePackets, audioLevelAverage, playoutDelayExt, transportWideCcExt, lockRecord, notifyJoining, requireE2ee } = config
 
     this.id = id
     this.codec = codec
@@ -198,7 +163,6 @@ class JanusRoomConfig {
     return body
   }
 }
-
-module.exports.JanusConfig = JanusConfig
-module.exports.JanusAdminConfig = JanusAdminConfig
-module.exports.JanusRoomConfig = JanusRoomConfig
+export { JanusConfig }
+export { JanusAdminConfig }
+export { JanusRoomConfig }

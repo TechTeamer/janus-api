@@ -1,14 +1,26 @@
 {
-  "extends": "standard",
+  "root": true,
+  "extends": ["standard", "plugin:n/recommended", "plugin:@typescript-eslint/stylistic"],
   "rules": {
-    "curly": "error",
+    "curly": ["error", "all"],
+    "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
     "guard-for-in": "error",
     "no-console": "error",
-    "no-debugger": "error"
+    "no-debugger": "error",
+    "radix": "error",
+    "n/no-deprecated-api": "warn",
+    "n/no-process-exit": "off",
+    "no-process-exit": "off",
+    "n/shebang": "off",
+    "no-empty-function": "error"
   },
   "env": {
-    "node": true,
     "commonjs": true,
     "es6": true
-  }
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "ignorePatterns": ["dist/", "*.d.ts"]
 }
