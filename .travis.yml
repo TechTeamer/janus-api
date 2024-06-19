@@ -15,6 +15,7 @@ before_install:
 jobs:
   include:
     - stage: ci
+      if: branch =~ /^(master+)$/
       services: docker
       install: skip
       script:
