@@ -3,10 +3,14 @@ dist: focal
 language: node_js
 
 node_js:
-  - "16"
+  - "20"
+  - "22"
 
 git:
   depth: false
+
+before_install:
+  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.22.22
 
 jobs:
   include:
