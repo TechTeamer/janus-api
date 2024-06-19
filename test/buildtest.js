@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import esbuild from 'esbuild'
 import * as httpServer from 'http-server'
 const pack = (input, output) => {
