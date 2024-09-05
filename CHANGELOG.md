@@ -1,3 +1,11 @@
+# [7.0.0](https://github.com/TechTeamer/janus-api/compare/6.4.0...7.0.0) (2024-09-05)
+
+- [FKITDEV-3756](https://youtrack.techteamer.com/issue/FKITDEV-3756) Esm migration
+
+### BREAKING CHANGES
+
+- **deps:** bump minimum node to: ^18
+
 6.4.0:
 - added 'keyframe' event to videoroom
 
