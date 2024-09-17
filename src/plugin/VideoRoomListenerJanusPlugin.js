@@ -31,30 +31,46 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
       offer_audio: offerAudio
     }
 
-    return new Promise((resolve, reject) => {
-      this.transaction('message', { body: join }, 'event').then((param) => {
-        const { data, json } = param || {}
-        if (!data || data.videoroom !== 'attached') {
-          this.logger.error('VideoRoomListenerJanusPlugin join answer is not attached', data, json)
-          throw new Error('VideoRoomListenerJanusPlugin join answer is not attached')
-        }
-        if (!json.jsep) {
-          this.logger.error('VideoRoomListenerJanusPlugin join answer does not contains jsep', data, json)
-          throw new Error('VideoRoomListenerJanusPlugin join answer does not contains jsep')
-        }
+    const retryTransaction = (retriesLeft, delay) => {
+      return new Promise((resolve, reject) => {
+        this.transaction('message', { body: join }, 'event').then((param) => {
+          const { data, json } = param || {}
 
-        const jsep = json.jsep
-        if (this.filterDirectCandidates && jsep.sdp) {
-          jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
-        }
+          if (!data || data.videoroom !== 'attached') {
+            this.logger.error('VideoRoomListenerJanusPlugin join answer is not attached', data, json)
+            throw new Error('VideoRoomListenerJanusPlugin join answer is not attached')
+          }
+          if (!json.jsep) {
+            this.logger.error('VideoRoomListenerJanusPlugin join answer does not contains jsep', data, json)
+            throw new Error('VideoRoomListenerJanusPlugin join answer does not contains jsep')
+          }
 
-        this.emit('jsep', jsep)
-        resolve(jsep)
-      }).catch((err) => {
-        this.logger.error('VideoRoomListenerJanusPlugin, unknown error connecting to room', err, join)
-        reject(err)
+          const jsep = json.jsep
+          if (this.filterDirectCandidates && jsep.sdp) {
+            jsep.sdp = this.sdpHelper.filterDirectCandidates(jsep.sdp)
+          }
+
+          this.emit('jsep', jsep)
+
+          resolve(jsep)
+        }).catch((err) => {
+          if (retriesLeft > 0) {
+            this.logger.warn(`VideoRoomListenerJanusPlugin, Retrying join Janus-gateway... ${retriesLeft} attempts left`)
+
+            setTimeout(() => {
+              retryTransaction(retriesLeft - 1, delay).then(resolve).catch(reject)
+            }, delay);
+          } else {
+            this.logger.error('VideoRoomListenerJanusPlugin, unknown error connecting to room', err, join)
+
+            reject(err)
+          }
+        })
       })
-    })
+    }
+
+    // Max 10 retries with 1 second interval (10 seconds total)
+    return retryTransaction(10, 1000)
   }
 
   setAnswer (answer) {
