@@ -59,7 +59,7 @@ class VideoRoomListenerJanusPlugin extends JanusPlugin {
 
             setTimeout(() => {
               retryTransaction(retriesLeft - 1, delay).then(resolve).catch(reject)
-            }, delay);
+            }, delay)
           } else {
             this.logger.error('VideoRoomListenerJanusPlugin, unknown error connecting to room', err, join)
 
