@@ -1,4 +1,11 @@
-# [7.0.0](https://github.com/TechTeamer/janus-api/compare/6.4.0...7.0.0) (2024-09-05)
+## [7.0.1-beta.1](https://github.com/TechTeamer/janus-api/compare/7.0.0...7.0.1-beta.21) (2024-08-27)
+
+
+### Bug Fixes
+
+* FKITDEV-4638 janus gateway bug with old iphones ([#36](https://github.com/TechTeamer/janus-api/issues/36)) ([79dad66](https://github.com/TechTeamer/janus-api/commit/05eb6c74798026ada729770e092b560a58ffb350))
+
+## [7.0.0](https://github.com/TechTeamer/janus-api/compare/6.4.0...7.0.0) (2024-09-05)
 
 - [FKITDEV-3756](https://youtrack.techteamer.com/issue/FKITDEV-3756) Esm migration
 
