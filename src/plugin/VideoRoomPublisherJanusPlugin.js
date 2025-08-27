@@ -241,7 +241,7 @@ class VideoRoomPublisherJanusPlugin extends JanusPlugin {
   }
 
   candidate (candidate) {
-    if (this.filterDirectCandidates && candidate.candidate && this.sdpHelper.isDirectCandidate(candidate.candidate)) {
+    if (this.filterDirectCandidates && candidate && candidate.candidate && this.sdpHelper.isDirectCandidate(candidate.candidate)) {
       return
     }
 
