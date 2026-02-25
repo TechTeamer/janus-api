@@ -1,0 +1,191 @@
+name: Common
+
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        type: string
+        required: true
+      run_build:
+        type: boolean
+        required: false
+        default: false
+      run_release:
+        type: boolean
+        required: false
+        default: false
+      dist_dir:
+        type: string
+        required: false
+        default: dist
+    secrets:
+      SONAR_TOKEN:
+        required: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Lint
+        run: yarn test 2>&1 | tee lint-results.txt
+      - name: Upload lint results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: lint-results.txt
+
+  # test:
+  #   name: Unit Tests
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     checks: write
+  #     pull-requests: write
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ inputs.node_version }}
+  #         cache: yarn
+  #     - name: Install dependencies
+  #       run: yarn install --frozen-lockfile
+  #     - name: Unit tests
+  #       run: yarn jest:unit --json --coverage --outputFile=jest-results.json 2>&1 | tee unit-test-results.txt
+
+  #     - name: Upload test results
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: unit-test-results
+  #         path: unit-test-results.txt
+
+  #     - name: Upload test coverage
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: test-coverage
+  #         path: jest-results.json
+
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Audit
+        run: |
+          set +e
+          yarn audit --groups dependencies 2>&1 | tee audit-results.txt
+          set -e
+          yarn run improved-yarn-audit \
+            --min-severity critical \
+            --exclude GHSA-wrh9-cjv3-2hpw,GHSA-vqfx-gj96-3w95,GHSA-f598-mfpv-gmfx \
+            2>&1 | tee -a audit-results.txt
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: audit-results.txt
+
+  sonar:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.branch.name=${{ github.head_ref || github.ref_name }}
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, audit, sonar]
+    if: ${{ inputs.run_build }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn build
+
+      - name: Package build
+        run: |
+          tar -czf build-${{ github.ref_name }}.tar.gz ${{ inputs.dist_dir }}
+          zip -r build-${{ github.ref_name }}.zip ${{ inputs.dist_dir }}
+
+      - name: Upload build packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: |
+            build-${{ github.ref_name }}.tar.gz
+            build-${{ github.ref_name }}.zip
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ inputs.run_release }}
+    permissions:
+      contents: write
+    steps:
+      - name: Download build packages
+        uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          path: .
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "${{ github.ref_name }}" \
+            --generate-notes \
+            build-${{ github.ref_name }}.tar.gz \
+            build-${{ github.ref_name }}.zip
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ github.ref_name }}
+          path: build-${{ github.ref_name }}.tar.gz
+          if-no-files-found: error

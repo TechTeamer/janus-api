@@ -1,0 +1,14 @@
+name: Pull Request
+
+on:
+  pull_request:
+
+jobs:
+  ci:
+    uses: ./.github/workflows/common.yaml
+    with:
+      node_version: "24"
+      run_build: false
+      run_release: false
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

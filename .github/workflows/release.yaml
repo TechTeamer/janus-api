@@ -1,0 +1,17 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  ci_release:
+    uses: ./.github/workflows/common.yml
+    with:
+      node_version: "24"
+      run_build: true
+      run_release: true
+      dist_dir: .
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
