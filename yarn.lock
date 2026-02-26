@@ -1275,6 +1275,11 @@ import-fresh@^3.2.1:
     parent-module "^1.0.0"
     resolve-from "^4.0.0"
 
+improved-yarn-audit@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/improved-yarn-audit/-/improved-yarn-audit-3.0.4.tgz#5856ab354e21d98a12090ef690f6ff8b4c7bb8d3"
+  integrity sha512-secfgreRqLYmnp4qzaxxICpOC/RJxcfQSrDSVvkMTXS8bssjqMSuJiueqr07PVP87OlyfTytxDR2SkzIeoTfLQ==
+
 imurmurhash@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/imurmurhash/-/imurmurhash-0.1.4.tgz#9218b9b2b928a238b13dc4fb6b6d576f231453ea"
