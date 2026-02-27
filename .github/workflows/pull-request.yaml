@@ -3,12 +3,139 @@ name: Pull Request
 on:
   pull_request:
 
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "24"
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  ci:
-    uses: ./.github/workflows/common.yaml
-    with:
-      node_version: "24"
-      run_build: false
-      run_release: false
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: |
+          set -euo pipefail
+          yarn test 2>&1 | tee lint-results.txt
+
+      - name: Upload lint results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: lint-results
+          path: lint-results.txt
+
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Audit
+        run: |
+          set -euo pipefail
+
+          set +e
+          yarn audit --groups dependencies 2>&1 | tee audit-results.txt
+          set -e
+
+          yarn run improved-yarn-audit \
+            --min-severity critical \
+            --exclude GHSA-wrh9-cjv3-2hpw,GHSA-vqfx-gj96-3w95,GHSA-f598-mfpv-gmfx \
+            2>&1 | tee -a audit-results.txt
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: audit-results
+          path: audit-results.txt
+
+  sonar:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.branch.name=${{ github.head_ref || github.ref_name }}
+            -Dsonar.scanner.metadataFilePath=sonar-report-task.txt
+      
+      - name: Upload Sonar report metadata
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: sonar-report-task
+          path: sonar-report-task.txt
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, audit, sonar]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          yarn build 2>&1 | tee build-results.txt
+
+      - name: Upload build results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: build-results
+          path: build-results.txt
