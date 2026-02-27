@@ -99,7 +99,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.branch.name=${{ github.head_ref || github.ref_name }}
             -Dsonar.scanner.metadataFilePath=sonar-report-task.txt
       
       - name: Upload Sonar report metadata
