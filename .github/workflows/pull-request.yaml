@@ -73,7 +73,6 @@ jobs:
 
           yarn run improved-yarn-audit \
             --min-severity critical \
-            --exclude GHSA-wrh9-cjv3-2hpw,GHSA-vqfx-gj96-3w95,GHSA-f598-mfpv-gmfx \
             2>&1 | tee -a audit-results.txt
 
       - name: Upload audit results
@@ -99,8 +98,12 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.scanner.metadataFilePath=sonar-report-task.txt
-      
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
+            -Dsonar.pullrequest.branch=${{ github.head_ref }}
+            -Dsonar.pullrequest.base=${{ github.base_ref }}
+            -Dsonar.scanner.metadataFilePath=${{ github.workspace }}/sonar-report-task.txt
+
       - name: Upload Sonar report metadata
         if: always()
         uses: actions/upload-artifact@v6
