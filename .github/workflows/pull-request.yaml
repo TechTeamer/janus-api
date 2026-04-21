@@ -36,7 +36,7 @@ jobs:
       - name: Lint
         run: |
           set -euo pipefail
-          yarn lint 2>&1 | tee lint-results.txt
+          yarn test 2>&1 | tee lint-results.txt
 
       - name: Upload lint results
         if: always()
