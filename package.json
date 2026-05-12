@@ -34,6 +34,7 @@
   "type": "module",
   "homepage": "https://github.com/TechTeamer/janus-api#readme",
   "dependencies": {
+    "improved-yarn-audit": "^3.0.4",
     "isomorphic-ws": "^4.0.1",
     "sdp": "^3.0.1",
     "uuid": "^8.2.0",
